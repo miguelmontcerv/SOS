@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement()
 
 public class Usuarios {
-	private int id;
+	private String id;
     private String usuario;
     private String nombre_completo;
     private String correo;
@@ -18,10 +18,10 @@ public class Usuarios {
     
     @XmlElement(name="id_usuario")
 
-    public int getId() {
+    public String getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
