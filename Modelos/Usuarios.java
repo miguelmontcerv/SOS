@@ -2,6 +2,7 @@ package rest1;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 
 @XmlRootElement()
 
@@ -24,6 +25,7 @@ public class Usuarios {
     public void setId(String id) {
         this.id = id;
     }
+    ArrayList<Tesoros> tesoros_encontrados = new ArrayList<Tesoros>(); 
 
     @XmlElement(name="usuario")
 
@@ -98,4 +100,16 @@ public class Usuarios {
         public void setNom_amigos(String nom_amigo) {
             nom_amigos[nom_amigos.length] = nom_amigo;
         }
+    @XmlElement(name="tesoros_encontrados")
+    
+    	public ArrayList<Tesoros> getTesoros_encontrados(){
+    		return tesoros_encontrados;
+    	}
+    	public Tesoros getTesoros_encontrados(int index) {
+    		return tesoros_encontrados.get(index);
+    	}
+    	public void setTesoros_encontrados(Tesoros tesoro) {
+    		tesoros_encontrados.add(tesoro);
+        }
+
 }

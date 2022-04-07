@@ -115,4 +115,33 @@ public class geoetsiinf {
 			user.setNom_amigos("Lalo");*/
 			return user;
 		}
+		
+	@PUT
+	@Path("{id_usuario}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addTesoroHist(@PathParam("id_usuario") String id, Tesoros[] userRequest) {
+
+		Usuarios usuario;
+		if (UsuariosDao.getInstance().getModel().containsKey(id)) {
+			usuario = UsuariosDao.getInstance().getModel().get(id);
+			ArrayList<Tesoros> tesoros = usuario.getTesoros_encontrados();
+
+			for (int i = 0; i < tesoros.size(); i++) {
+				if (userRequest==null)
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+				if (userRequest[0].getId()==0)
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+				if (tesoros.get(i).getId() == userRequest[0].getId()) {
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+				}
+			}
+			UsuariosDao.getInstance().getModel().get(id).setTesoros_encontrados(userRequest[0]);
+			return Response.status(Response.Status.CREATED).build();
+		} else {
+			// throw new RuntimeException("Get: Tarea con id " + id + " no encontrada");
+			return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+		}
+
+	}
+	  
 }
