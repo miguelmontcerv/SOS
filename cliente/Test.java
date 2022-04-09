@@ -19,18 +19,20 @@ public class Test {
 		Client client = ClientBuilder.newClient(config);
 
 		WebTarget target = client.target(getBaseURI());
-
-		//System.out.println(target.path("v1").path("usuarios").request().
-				//accept(MediaType.TEXT_XML).get(String.class));
 		
+		Ventana v1 = new Ventana();                
+        v1.setVisible(true);
 		
-		//System.out.println(target.path("v1").path("usuarios").request().
-			//	accept(MediaType.APPLICATION_XML).get(String.class));
-				
-		Usuarios m = target.path("v1").path("usuarios").request().
-				accept(MediaType.APPLICATION_XML).get(Usuarios.class);
-
-		System.out.println("El nombre del user es: "+m.getUsuario()+" y su id es: "+m.getId());
+		Usuarios fernando = new Usuarios();
+		
+		fernando.setId("8");
+		fernando.setUsuario("FernandoVIII");
+		fernando.setNombre_completo("Fernadno VIII");
+		fernando.setLocalidad("Madrid");
+		
+		Response response = target.path("v1").path("usuarios").request().accept(MediaType.APPLICATION_XML).post(Entity.xml(fernando),Response.class);
+		
+		System.out.println(response.getStatus());
 
 		System.out.println(target.path("v1").path("usuarios").request().accept(MediaType.APPLICATION_XML).get(String.class));	
 
