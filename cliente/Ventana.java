@@ -1,21 +1,41 @@
+/* Librerias para GUI */
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 
-import java.util.Scanner;
+/* Librerias para comunicacion */
+import java.net.URI;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
+import org.glassfish.jersey.client.ClientConfig;
 
 public class Ventana extends JFrame{
     
     //private Scanner in = new Scanner(System.in);
     JPanel panel1, panel2, panel3, panel4;
     
-    JButton button1, button2, button3, buttonSALIR;
+    JButton button1, button2, button3, button4, button5, button6, button7, button8, button9, button10, button11, button12,button13,button14;
     
     JTextArea areaTexto, areaTexto2;
     
     JLabel label1, label2, label3, label4, label5;
+    
+    /* Seccion Web */
+    ClientConfig config;
+
+	Client client;
+
+	WebTarget target;
+	
+	///////////////
     
     public Ventana(){
         setSize(1240,720);
@@ -30,11 +50,13 @@ public class Ventana extends JFrame{
         panel4 = new JPanel(); //Superior
         
         iniciarComponentes();
+        
+        iniciarComunicacion();
     }
     
     public void iniciarComponentes(){
 
-        button1 = new JButton("Agregar un nuevo usuario");
+    	button1 = new JButton("Iniciar Sesion");
         button1.setFocusPainted(false);
         button1.setMargin(new Insets(0, 0, 0, 0));        
         button1.setBorderPainted(false);
@@ -42,7 +64,7 @@ public class Ventana extends JFrame{
         button1.setBackground(new Color(29,35,57));
         button1.setForeground(Color.white);
         
-        button2 = new JButton("Agregar un nuevo tesoro");
+        button2 = new JButton("Agregar un nuevo usuario");
         button2.setFocusPainted(false);
         button2.setMargin(new Insets(0, 0, 0, 0));        
         button2.setBorderPainted(false);
@@ -50,7 +72,7 @@ public class Ventana extends JFrame{
         button2.setBackground(new Color(29,35,57));
         button2.setForeground(Color.white);
         
-        button3 = new JButton("Editar la info de un usuario");
+        button3 = new JButton("Consultar perfil");
         button3.setFocusPainted(false);
         button3.setMargin(new Insets(0, 0, 0, 0));        
         button3.setBorderPainted(false);
@@ -58,17 +80,98 @@ public class Ventana extends JFrame{
         button3.setBackground(new Color(29,35,57));
         button3.setForeground(Color.white);
         
-        buttonSALIR = new JButton("Salir");
-        buttonSALIR.setFocusPainted(false);
-        buttonSALIR.setMargin(new Insets(0, 0, 0, 0));        
-        buttonSALIR.setBorderPainted(false);
-        buttonSALIR.setOpaque(true);
-        buttonSALIR.setBackground(new Color(29,35,57));
-        buttonSALIR.setForeground(Color.white);
+        button4 = new JButton("Actualizar Informacion");
+        button4.setFocusPainted(false);
+        button4.setMargin(new Insets(0, 0, 0, 0));        
+        button4.setBorderPainted(false);
+        button4.setOpaque(true);
+        button4.setBackground(new Color(29,35,57));
+        button4.setForeground(Color.white);
+        
+        button5 = new JButton("Eliminar Cuenta");
+        button5.setFocusPainted(false);
+        button5.setMargin(new Insets(0, 0, 0, 0));        
+        button5.setBorderPainted(false);
+        button5.setOpaque(true);
+        button5.setBackground(new Color(29,35,57));
+        button5.setForeground(Color.white);
+
+        button6 = new JButton("Listado de Usuarios");
+        button6.setFocusPainted(false);
+        button6.setMargin(new Insets(0, 0, 0, 0));        
+        button6.setBorderPainted(false);
+        button6.setOpaque(true);
+        button6.setBackground(new Color(29,35,57));
+        button6.setForeground(Color.white);
+        
+        button7 = new JButton("Agregar/Editar Tesoro");
+        button7.setFocusPainted(false);
+        button7.setMargin(new Insets(0, 0, 0, 0));        
+        button7.setBorderPainted(false);
+        button7.setOpaque(true);
+        button7.setBackground(new Color(29,35,57));
+        button7.setForeground(Color.white);
+        
+        button8 = new JButton("Eliminar Tesoro");
+        button8.setFocusPainted(false);
+        button8.setMargin(new Insets(0, 0, 0, 0));        
+        button8.setBorderPainted(false);
+        button8.setOpaque(true);
+        button8.setBackground(new Color(29,35,57));
+        button8.setForeground(Color.white);
+        
+        button9 = new JButton("Consultar Tesoros");
+        button9.setFocusPainted(false);
+        button9.setMargin(new Insets(0, 0, 0, 0));        
+        button9.setBorderPainted(false);
+        button9.setOpaque(true);
+        button9.setBackground(new Color(29,35,57));
+        button9.setForeground(Color.white);
+        
+        button10 = new JButton("Buscar Tesoro!");
+        button10.setFocusPainted(false);
+        button10.setMargin(new Insets(0, 0, 0, 0));        
+        button10.setBorderPainted(false);
+        button10.setOpaque(true);
+        button10.setBackground(new Color(29,35,57));
+        button10.setForeground(Color.white);
+        
+        button11 = new JButton("Agregar Amigos");
+        button11.setFocusPainted(false);
+        button11.setMargin(new Insets(0, 0, 0, 0));        
+        button11.setBorderPainted(false);
+        button11.setOpaque(true);
+        button11.setBackground(new Color(29,35,57));
+        button11.setForeground(Color.white);
+        
+        button12 = new JButton("Eliminar Amigo");
+        button12.setFocusPainted(false);
+        button12.setMargin(new Insets(0, 0, 0, 0));        
+        button12.setBorderPainted(false);
+        button12.setOpaque(true);
+        button12.setBackground(new Color(29,35,57));
+        button12.setForeground(Color.white);
+        
+        button13 = new JButton("Consultar Amigo");
+        button13.setFocusPainted(false);
+        button13.setMargin(new Insets(0, 0, 0, 0));        
+        button13.setBorderPainted(false);
+        button13.setOpaque(true);
+        button13.setBackground(new Color(29,35,57));
+        button13.setForeground(Color.white);
+        
+        button14 = new JButton("Tesoros Cercanos a ...");
+        button14.setFocusPainted(false);
+        button14.setMargin(new Insets(0, 0, 0, 0));        
+        button14.setBorderPainted(false);
+        button14.setOpaque(true);
+        button14.setBackground(new Color(29,35,57));
+        button14.setForeground(Color.white);
+        
         
       //Areas para registros de historial
 
-        JTextArea areaTexto = new JTextArea();
+        areaTexto = new JTextArea();
         areaTexto.setBounds(2,2,319, 659);
         areaTexto.setText(">_");
         areaTexto.setEditable(false);
@@ -76,7 +179,7 @@ public class Ventana extends JFrame{
         areaTexto.setBackground(new Color(168,218,220));
         areaTexto.setForeground(new Color(29,35,57));
         
-        JTextArea areaTexto2 = new JTextArea();
+        areaTexto2 = new JTextArea();
         areaTexto2.setBounds(30,180,600,480);
         areaTexto2.setText("Bienvenido a GeoETSIINF! ");
         areaTexto2.setEditable(false);
@@ -122,11 +225,21 @@ public class Ventana extends JFrame{
         panel3.setBounds(580, 60, 660, 660);
         panel4.setBounds(260, 0, 980, 60);
         
-        button1.setBounds(0,60,260,50); //Posicionx, posiciony, tamaño,tamaño        
-        button2.setBounds(0,110,260,50); //Posicionx, posiciony, tamaño,tamaño                
-        button3.setBounds(0,160,260,50); //Posicionx, posiciony, tamaño,tamaño
-
-        buttonSALIR.setBounds(0,500,260,50); //Posicionx, posiciony, tamaño,tamaño
+        button1.setBounds(0,60,260,30); //Posicionx, posiciony, tamaño,tamaño        
+        button2.setBounds(0,90,260,30); //Posicionx, posiciony, tamaño,tamaño                
+        button3.setBounds(0,120,260,30); //Posicionx, posiciony, tamaño,tamaño
+        button4.setBounds(0,150,260,30); //Posicionx, posiciony, tamaño,tamaño
+        button5.setBounds(0,180,260,30);
+        button6.setBounds(0,210,260,30);
+        button7.setBounds(0,240,260,30);
+        button8.setBounds(0,270,260,30);
+        button9.setBounds(0,300,260,30);
+        button10.setBounds(0,330,260,30);
+        button11.setBounds(0,360,260,30);
+        button12.setBounds(0,390,260,30);
+        button13.setBounds(0,420,260,30);
+        button14.setBounds(0,450,260,30);
+        
         
         label1.setBounds(20,10,100,50); //Posicionx, posiciony, tamaño,tamaño        
         label2.setBounds(300,10,300,35); //Posicionx, posiciony, tamaño,tamaño        
@@ -143,8 +256,17 @@ public class Ventana extends JFrame{
         panel1.add(button1);
         panel1.add(button2);
         panel1.add(button3);
-
-        panel1.add(buttonSALIR); 
+        panel1.add(button4);
+        panel1.add(button5);
+        panel1.add(button6);
+        panel1.add(button7);
+        panel1.add(button8);
+        panel1.add(button9);
+        panel1.add(button10);
+        panel1.add(button11);
+        panel1.add(button12);
+        panel1.add(button13);
+        panel1.add(button14);
         
         panel2.add(areaTexto);        
         panel3.add(areaTexto2);
@@ -154,6 +276,26 @@ public class Ventana extends JFrame{
         this.getContentPane().add(panel2);
         this.getContentPane().add(panel3);
         this.getContentPane().add(panel4);
+        
     }
 
+    public void iniciarComunicacion() {
+    	config = new ClientConfig();
+
+		client = ClientBuilder.newClient(config);
+
+		target = client.target(getBaseURI());
+		
+		System.out.println(target.path("v1").path("usuarios").request().accept(MediaType.TEXT_PLAIN).get(String.class));
+    	
+		String s = "\n\nSe ha establecido conexion con "+ target.path("v1").path("usuarios").path("Path").request().accept(MediaType.TEXT_PLAIN).get(String.class) +"\nPuede comenzar a utilizar la aplicacion";
+		
+		areaTexto2.append(s);
+		
+    }
+    
+    private static URI getBaseURI() {
+		return UriBuilder.fromUri("http://localhost:8080/api.geoetsiinf/").build();
+	}
+    
 }

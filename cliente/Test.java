@@ -1,27 +1,11 @@
-import java.net.URI;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-
-import org.glassfish.jersey.client.ClientConfig;
-
 
 public class Test {
 
 	public static void main(String[] args) {
-		ClientConfig config = new ClientConfig();
-
-		Client client = ClientBuilder.newClient(config);
-
-		WebTarget target = client.target(getBaseURI());
 		
-		Ventana v1 = new Ventana();                
-        v1.setVisible(true);
+		Ventana ventana = new Ventana();                
+        ventana.setVisible(true);
+        
 		
 		Usuarios fernando = new Usuarios();
 		
@@ -30,16 +14,9 @@ public class Test {
 		fernando.setNombre_completo("Fernadno VIII");
 		fernando.setLocalidad("Madrid");
 		
-		Response response = target.path("v1").path("usuarios").request().accept(MediaType.APPLICATION_XML).post(Entity.xml(fernando),Response.class);
+		/*Response response = target.path("v1").path("usuarios").request().accept(MediaType.APPLICATION_XML).post(Entity.xml(fernando),Response.class);
 		
-		System.out.println(response.getStatus());
-
-		System.out.println(target.path("v1").path("usuarios").request().accept(MediaType.APPLICATION_XML).get(String.class));	
-
-	}
-
-	private static URI getBaseURI() {
-		return UriBuilder.fromUri("http://localhost:8080/api.geoetsiinf/").build();
-	}
+		System.out.println(response.getStatus());*/
+	}	
 	
 }

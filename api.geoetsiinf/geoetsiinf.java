@@ -53,6 +53,14 @@ public class geoetsiinf {
 	     
 	    return Response.ok(s).build();
 	  }
+
+	  //Para pruebas del cliente
+	 @Path("Path")
+	 @GET
+	 @Consumes(MediaType.TEXT_PLAIN)
+	  public Response consultarPath() {
+		 return Response.status(Response.Status.OK).entity(uriInfo.getAbsolutePath().toString()).build();
+	  }
 	 
 	 //Ver a un usuario en especifico
 	 @Path("{id_usuario}")
