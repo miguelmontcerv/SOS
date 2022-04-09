@@ -44,17 +44,19 @@ public class Ventana extends JFrame{
         setResizable(false);
         setTitle("PROYECTO SOS");
         
-        panel1 = new JPanel(); //Izquierda
-        panel2 = new JPanel(); //Central
-        panel3 = new JPanel(); //Derecha
-        panel4 = new JPanel(); //Superior
-        
         iniciarComponentes();
         
         iniciarComunicacion();
+        
+        escucharBotones();
     }
     
     public void iniciarComponentes(){
+    	
+    	panel1 = new JPanel(); //Izquierda
+        panel2 = new JPanel(); //Central
+        panel3 = new JPanel(); //Derecha
+        panel4 = new JPanel(); //Superior
 
     	button1 = new JButton("Iniciar Sesion");
         button1.setFocusPainted(false);
@@ -298,4 +300,70 @@ public class Ventana extends JFrame{
 		return UriBuilder.fromUri("http://localhost:8080/api.geoetsiinf/").build();
 	}
     
+    public void escucharBotones() {
+    	ActionListener oyente = new ActionListener(){
+    	    @Override
+    	    public void actionPerformed(ActionEvent e){
+    	        JButton btn1 = new JButton(); btn1 = (JButton) e.getSource();
+    	        if(btn1.getText() == "Iniciar Sesion"){
+    	        	System.out.println(btn1.getText());        
+    	        }
+    	        if(btn1.getText() == "Agregar un nuevo usuario"){
+    	        	System.out.println(btn1.getText());  
+    	        }
+    	        if(btn1.getText() == "Consultar perfil"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Actualizar Informacion"){
+    	        	System.out.println(btn1.getText());     
+    	        }
+    	        if(btn1.getText() == "Eliminar Cuenta"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Listado de Usuarios"){                                        
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Agregar/Editar Tesoro"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Eliminar Tesoro"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Consultar Tesoros"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Buscar Tesoro!"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Agregar Amigos"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Eliminar Amigo"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Consultar Amigo"){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	        if(btn1.getText() == "Tesoros Cercanos a ..."){
+    	        	System.out.println(btn1.getText());
+    	        }
+    	    }
+    	};
+    	
+    	button1.addActionListener(oyente);
+    	button2.addActionListener(oyente);
+    	button3.addActionListener(oyente);
+    	button4.addActionListener(oyente);
+    	button5.addActionListener(oyente);
+    	button6.addActionListener(oyente);
+    	button7.addActionListener(oyente);
+    	button8.addActionListener(oyente);
+    	button9.addActionListener(oyente);
+    	button10.addActionListener(oyente);
+    	button11.addActionListener(oyente);
+    	button12.addActionListener(oyente);
+    	button13.addActionListener(oyente);
+    	button14.addActionListener(oyente);
+    	
+    }
 }
