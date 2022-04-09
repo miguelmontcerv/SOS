@@ -1,10 +1,5 @@
 package rest1;
-import Models.Usuarios;
-import Models.UsuariosList;
 import java.util.Iterator;
-import Models.Tesoros;
-import Daos.UsuariosDao;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,33 +138,96 @@ public class geoetsiinf {
 			return user;
 		}
 	  
-	  @PUT
-		@Path("{id_usuario}")
-		@Consumes(MediaType.APPLICATION_JSON)
-		public Response addTesoroHist(@PathParam("id_usuario") String id, Tesoros[] userRequest) {
 
-			Usuarios usuario;
-			if (UsuariosDao.getInstance().getModel().containsKey(id)) {
-				usuario = UsuariosDao.getInstance().getModel().get(id);
-				ArrayList<Tesoros> tesoros = usuario.getTesoros_encontrados();
+
+	@PUT
+	@Path("{id_usuario}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addTesoroHist(@PathParam("id_usuario") String id, Tesoros userRequest) {
+
+		Usuarios usuario;
+		if (UsuariosDao.getInstance().getModel().containsKey(id)) {
+			usuario = UsuariosDao.getInstance().getModel().get(id);
+			ArrayList<Tesoros> tesoros = usuario.getTesoros_encontrados();
+
+			for (int i = 0; i < tesoros.size(); i++) {
+				if (userRequest==null)
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+				if (userRequest.getId()==0)
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+				if (tesoros.get(i).getId() == userRequest.getId()) 
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
 				
-				for (int i = 0; i < tesoros.size(); i++) {
-					if (userRequest==null)
-						return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
-					if (userRequest[0].getId()==0)
-						return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
-					if (tesoros.get(i).getId() == userRequest[0].getId()) {
-						return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
-					}
-				}
-				
-				UsuariosDao.getInstance().getModel().get(id).setTesoros_encontrados(userRequest[0]);
-				return Response.status(Response.Status.CREATED).build();
-			} else {
-				// throw new RuntimeException("Get: Tarea con id " + id + " no encontrada");
-				return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
 			}
-
+			UsuariosDao.getInstance().getModel().get(id).setTesoros_encontrados(userRequest);
+			String res = "Se ha agregado el tesoro " + userRequest.getId();
+			return Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
+		} else {
+			// throw new RuntimeException("Get: Tarea con id " + id + " no encontrada");
+			return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
 		}
 
+	}
+	@POST
+	@Path("{id_usuario}/amigos")
+	public Response addAmigo(@PathParam("id_usuario") String id, @QueryParam("id_amigos")String userRequest) {
+		Usuarios usuarioA;
+		Usuarios usuarioB;
+		if(id.equals(userRequest))
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		if (UsuariosDao.getInstance().getModel().containsKey(id)&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) {
+			usuarioA = UsuariosDao.getInstance().getModel().get(id);
+			usuarioB = UsuariosDao.getInstance().getModel().get(userRequest);
+			
+			for(int i =0 ; i<usuarioA.getId_amigos().size();i++ ) {
+				if(usuarioA.getId_amigos(i).equals(userRequest)) {
+					return Response.status(Response.Status.UNAUTHORIZED).build();
+				}
+			}
+			for(int i =0 ; i<usuarioB.getId_amigos().size();i++ ) {
+				if(usuarioB.getId_amigos(i).equals(id)) {
+					return Response.status(Response.Status.UNAUTHORIZED).build();
+				}
+			}	
+			UsuariosDao.getInstance().getModel().get(id).setId_amigos(userRequest);
+			UsuariosDao.getInstance().getModel().get(userRequest).setId_amigos(id);
+			String res = "Usuario  " + id + " ha agreado a amigos a " + userRequest;
+			return Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
+		}
+		else {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+	}
+	@DELETE
+	@Path("{id_usuario}/amigos")
+	public Response deleteAmigo(@PathParam("id_usuario") String id, @QueryParam("id_amigos")String userRequest) {
+		Usuarios usuarioA;
+		Usuarios usuarioB;
+		if(id.equals(userRequest))
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		if (UsuariosDao.getInstance().getModel().containsKey(id)&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) {
+			usuarioA = UsuariosDao.getInstance().getModel().get(id);
+			usuarioB = UsuariosDao.getInstance().getModel().get(userRequest);
+			for(int i =0 ; i<usuarioA.getId_amigos().size()+1;i++ ) {
+				if(i==usuarioA.getId_amigos().size())
+					return Response.status(Response.Status.UNAUTHORIZED).build();
+				if(usuarioA.getId_amigos(i).equals(userRequest)) {
+					UsuariosDao.getInstance().getModel().get(id).getId_amigos().remove(i);
+				}
+			}
+			for(int i =0 ; i<usuarioB.getId_amigos().size()+1;i++ ) {
+				if(i==usuarioB.getId_amigos().size())
+					return Response.status(Response.Status.UNAUTHORIZED).build();
+				if(usuarioB.getId_amigos(i).equals(id)) {
+					UsuariosDao.getInstance().getModel().get(userRequest).getId_amigos().remove(i);
+				}
+			}
+			String res = "Usuario  " + id + " ha borrado de amigos a " + userRequest;
+			return Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
+		}
+		else {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+	}
+	  
 }
