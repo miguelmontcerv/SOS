@@ -1,4 +1,12 @@
 package rest1;
+import Models.Usuarios;
+import Models.UsuariosList;
+import java.util.Iterator;
+import Models.Tesoros;
+import Daos.UsuariosDao;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -32,10 +40,29 @@ public class geoetsiinf {
 	 @Context
 	  Request request;
 	 
+	 //Obtenemos una lista de los usuarios:
+	 @GET
+	 @Consumes(MediaType.TEXT_PLAIN)
+	  public Response getTodosBrowser() {
+	    List<Usuarios> users = new ArrayList<Usuarios>();
+	    users.addAll(UsuariosDao.getInstance().getModel().values());
+	    
+	    UsuariosList lista = new UsuariosList(users);
+	    
+	    Iterator<Usuarios> i  = lista.getL().iterator();
+	    
+	    String s = "";
+	    while (i.hasNext()) {
+	    	s = s + i.next().getUsuario() + "\n";
+	    }
+	     
+	    return Response.ok(s).build();
+	  }
+	 
 	 //Ver a un usuario en especifico
 	 @Path("{id_usuario}")
 	  @GET
-	  @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	  @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	  public Response getUsuario(@PathParam("id_usuario") String id) {
 		  Response res;
 		  Usuarios usuario;
@@ -71,13 +98,13 @@ public class geoetsiinf {
 	 }
 	 
 	 @POST
-	 @Consumes(MediaType.APPLICATION_XML)
+	 @Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML,MediaType.TEXT_XML})
 	 public Response postUsuario(Usuarios userRequest) {
 		 String res;
 		 
 		 if(userRequest == null) {
 			 res = "El body esta vacio"; 
-			 return Response.noContent().build();
+			 return Response.noContent().entity(res).build();
 		 }
 		 else {
 			 UsuariosDao.getInstance().getModel().put(userRequest.getId(), userRequest);
@@ -88,13 +115,13 @@ public class geoetsiinf {
 	 
 	 
 	  // Este método se invoca si se solicita TEXT_PLAIN
-	  @GET
+	  /*@GET
 	  @Produces(MediaType.TEXT_PLAIN)
 	  public Response saludoPlainText() {
 		  String respuesta = "Servidor dado de alta correctamente";
 		  return Response.status(Response.Status.ACCEPTED).entity(respuesta).header("Location", 
 				  uriInfo.getAbsolutePath().toString()+"/otra").build();
-	  }
+	  }*/
 	  
 	  @GET
 	  @Path("{nombre}/{id}")
@@ -115,33 +142,34 @@ public class geoetsiinf {
 			user.setNom_amigos("Lalo");*/
 			return user;
 		}
-		
-	@PUT
-	@Path("{id_usuario}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response addTesoroHist(@PathParam("id_usuario") String id, Tesoros[] userRequest) {
+	  
+	  @PUT
+		@Path("{id_usuario}")
+		@Consumes(MediaType.APPLICATION_JSON)
+		public Response addTesoroHist(@PathParam("id_usuario") String id, Tesoros[] userRequest) {
 
-		Usuarios usuario;
-		if (UsuariosDao.getInstance().getModel().containsKey(id)) {
-			usuario = UsuariosDao.getInstance().getModel().get(id);
-			ArrayList<Tesoros> tesoros = usuario.getTesoros_encontrados();
-
-			for (int i = 0; i < tesoros.size(); i++) {
-				if (userRequest==null)
-					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
-				if (userRequest[0].getId()==0)
-					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
-				if (tesoros.get(i).getId() == userRequest[0].getId()) {
-					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+			Usuarios usuario;
+			if (UsuariosDao.getInstance().getModel().containsKey(id)) {
+				usuario = UsuariosDao.getInstance().getModel().get(id);
+				ArrayList<Tesoros> tesoros = usuario.getTesoros_encontrados();
+				
+				for (int i = 0; i < tesoros.size(); i++) {
+					if (userRequest==null)
+						return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+					if (userRequest[0].getId()==0)
+						return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+					if (tesoros.get(i).getId() == userRequest[0].getId()) {
+						return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+					}
 				}
+				
+				UsuariosDao.getInstance().getModel().get(id).setTesoros_encontrados(userRequest[0]);
+				return Response.status(Response.Status.CREATED).build();
+			} else {
+				// throw new RuntimeException("Get: Tarea con id " + id + " no encontrada");
+				return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
 			}
-			UsuariosDao.getInstance().getModel().get(id).setTesoros_encontrados(userRequest[0]);
-			return Response.status(Response.Status.CREATED).build();
-		} else {
-			// throw new RuntimeException("Get: Tarea con id " + id + " no encontrada");
-			return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+
 		}
 
-	}
-	  
 }
