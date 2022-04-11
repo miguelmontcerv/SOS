@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TesorosDao {
-    private Map<String, Tesoros> contentProvider = new HashMap<>();
+    private static Map<String, Tesoros> contentProvider = new HashMap<>();
 	  
 	private static TesorosDao instance = null;
 	
@@ -33,7 +33,7 @@ public class TesorosDao {
 		return instance;
 	}  
 
-	public ArrayList<Tesoros> getLista() {
+	public static ArrayList<Tesoros> getLista() {
 		ArrayList<Tesoros> listOfValues = contentProvider.values().stream()
 				.collect(Collectors.toCollection(ArrayList::new));
 		return listOfValues;
