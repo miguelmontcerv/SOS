@@ -39,10 +39,10 @@ public class geoetsiinf {
 	 @Context
 	  Request request;
 	 
-	 //Obtenemos una lista de los usuarios:
+	//Genera una lista de todos los usuario en la aplicacion
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
-	public Response getTodosBrowser() {
+	public Response getListaUsuarios() {
 	    List<Usuarios> users = new ArrayList<Usuarios>();
 	    users.addAll(UsuariosDao.getInstance().getModel().values());
 	    
@@ -58,110 +58,60 @@ public class geoetsiinf {
 	    return Response.ok(s).build();
 	}
 
-	//Para pruebas del cliente
+	//Metodo para obtener el path del proyecto
 	@Path("Path")
 	@GET
 	@Consumes(MediaType.TEXT_PLAIN)
-	 public Response consultarPath() {
+	public Response consultarPath() {
 		return Response.status(Response.Status.OK).entity(uriInfo.getAbsolutePath().toString()).build();
 	 }
 	 
-	 //Ver a un usuario en especifico
-	 @Path("{id_usuario}")
-	  @GET
-	  @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	  public Usuarios getUsuario(@PathParam("id_usuario") String id) {
-		 Response res;
+	
+	//Ver a un usuario en especifico, si lo encuentra regresa una instancia de él, sino regresa null
+	@Path("{id_usuario}")
+	@GET
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	public Usuarios getUsuario(@PathParam("id_usuario") String id) {
+		Response res;
 		 
-		  Usuarios usuario;
-		  if(UsuariosDao.getInstance().getModel().containsKey(id)) {
-			  usuario = UsuariosDao.getInstance().getModel().get(id);
-		      res = Response.ok(usuario).build();
+		Usuarios usuario;
+		if(UsuariosDao.getInstance().getModel().containsKey(id)) {
+			usuario = UsuariosDao.getInstance().getModel().get(id);
+		    res = Response.ok(usuario).build();
 		      
-		      return usuario;
-		  }  else {
-			  //throw new RuntimeException("Get: Tarea con id " + id +  " no encontrada");
-		      res = Response.status(Response.Status.NOT_FOUND).build();
-		      return null;
-		  }
-	  }
-	 
-	 //Agregar a un usuario definiendo su id a mano
-	 @PUT
-	 @Path("{id_usuario}")
-	 @Consumes(MediaType.APPLICATION_XML)
-	 public Response putUsuario(@PathParam("id_usuario") String id,@QueryParam("usuario") String user){
-		 Usuarios us = new Usuarios();
-		 Response res;
-		 
-		 if(UsuariosDao.getInstance().getModel().containsKey(id)) {
-			 res = Response.noContent().build();
-		 }
-		 else {
-			 us.setId(id);
-			 us.setNombre_completo(user);
-			 
-			 UsuariosDao.getInstance().getModel().put(us.getId(), us);
-			 res = Response.status(Response.Status.CREATED).entity("Se ha creado con exito un nuevo usuario").header("Location",uriInfo.getAbsolutePath().toString()).build();
-		 }
-		 return res;
-	 }
-	 
-	 @POST
-	 @Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML,MediaType.TEXT_XML})
-	 public Response postUsuario(Usuarios userRequest) {
-		 String res;
-		 
-		 if(userRequest == null) {
-			 res = "El body esta vacio"; 
-			 return Response.noContent().entity(res).build();
-		 }
-		 else {
-			 UsuariosDao.getInstance().getModel().put(userRequest.getId(), userRequest);
-			 res = "Se ha creado el user " + userRequest.getId();
-			 return  Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
-		 }
-	 }
-	 
-	 
-	  // Este método se invoca si se solicita TEXT_PLAIN
-	  /*@GET
-	  @Produces(MediaType.TEXT_PLAIN)
-	  public Response saludoPlainText() {
-		  String respuesta = "Servidor dado de alta correctamente";
-		  return Response.status(Response.Status.ACCEPTED).entity(respuesta).header("Location", 
-				  uriInfo.getAbsolutePath().toString()+"/otra").build();
-	  }*/
-	  
-	  @GET
-	  @Path("{nombre}/{id}")
-	  @Produces(MediaType.APPLICATION_XML)
-		public Usuarios getXML(@PathParam("nombre") String name, @PathParam("id") String id) {
-			Usuarios user = new Usuarios();
-			user.setUsuario(name);
-			user.setId(id);
-			user.setNombre_completo(name + " Angel Monteros");
-			user.setCorreo(name+"@upm.es");
-			user.setEdad(21);
-			user.setLocalidad("Madrid");
-			
-			/*user.setId_amigos(12);
-			user.setId_amigos(64);
-			
-			user.setNom_amigos("Ana");
-			user.setNom_amigos("Lalo");*/
-			return user;
+		    return usuario;
+		}else{
+			//throw new RuntimeException("Get: Tarea con id " + id +  " no encontrada");
+		    res = Response.status(Response.Status.NOT_FOUND).build();
+		    return null;
 		}
-	  
+	}
+	 
+	//Agregar a un usuario, el xml se le envia a travez del body
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
+	public Response postUsuario(Usuarios userRequest) {
+		String res;
+		 
+		if(userRequest == null) {
+			res = "El body esta vacio"; 
+			return Response.noContent().entity(res).build();
+		}
+		else{
+			UsuariosDao.getInstance().getModel().put(userRequest.getId(), userRequest);
+			res = "Se ha creado el user " + userRequest.getId();
+			return  Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
+		}
+	}
 
-
+	//Se agrega un tesoro al usuario que se marca en el Path, la info del tesoro es mandada por el body
 	@PUT
 	@Path("{id_usuario}")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
 	public Response addTesoroHist(@PathParam("id_usuario") String id, Tesoros userRequest) {
 
 		Usuarios usuario;
-		if (UsuariosDao.getInstance().getModel().containsKey(id)) {
+		if (UsuariosDao.getInstance().getModel().containsKey(id)) { //si el usuario exite
 			usuario = UsuariosDao.getInstance().getModel().get(id);
 			ArrayList<Tesoros> tesoros = usuario.getTesoros_encontrados();
 
@@ -184,38 +134,45 @@ public class geoetsiinf {
 
 	}
 
+	//Agregar un amigo a un usuario, hace el cambio en ambas instancias
 	@POST
 	@Path("{id_usuario}/amigos")
 	public Response addAmigo(@PathParam("id_usuario") String id, @QueryParam("id_amigos") String userRequest) {
 		Usuarios usuarioA;
 		Usuarios usuarioB;
-		if (id.equals(userRequest))
+		if (id.equals(userRequest)) //se verifica que un usuario no se pueda agregar a si mismo a sus amigos
 			return Response.status(Response.Status.UNAUTHORIZED).build();
 		if (UsuariosDao.getInstance().getModel().containsKey(id)
-				&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) {
+				&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) { //solo si ambos usuario existen
 			usuarioA = UsuariosDao.getInstance().getModel().get(id);
 			usuarioB = UsuariosDao.getInstance().getModel().get(userRequest);
 
-			for (int i = 0; i < usuarioA.getId_amigos().size(); i++) {
+			for (int i = 0; i < usuarioA.getId_amigos().size(); i++) { //verifica que no sean amigos
 				if (usuarioA.getId_amigos(i).equals(userRequest)) {
 					return Response.status(Response.Status.UNAUTHORIZED).build();
 				}
 			}
-			for (int i = 0; i < usuarioB.getId_amigos().size(); i++) {
+			for (int i = 0; i < usuarioB.getId_amigos().size(); i++) { //verifica que no sean amigos
 				if (usuarioB.getId_amigos(i).equals(id)) {
 					return Response.status(Response.Status.UNAUTHORIZED).build();
 				}
 			}
+
+			//ambos se agregan como amigos
 			UsuariosDao.getInstance().getModel().get(id).setId_amigos(userRequest);
 			UsuariosDao.getInstance().getModel().get(userRequest).setId_amigos(id);
+			
+			//se genera la respuesta
 			String res = "Usuario  " + id + " ha agreado a amigos a " + userRequest;
 			return Response.status(Response.Status.CREATED).entity(res)
 					.header("Location", uriInfo.getAbsolutePath().toString()).build();
-		} else {
-			return Response.status(Response.Status.NOT_FOUND).build();
+
+		} else{
+			return Response.status(Response.Status.NOT_FOUND).build(); //si alguno de los dos users no existen
 		}
 	}
 
+	//Elimina un amigo de un usuario, hace el cambio en ambas instancias
 	@DELETE
 	@Path("{id_usuario}/amigos")
 	public Response deleteAmigo(@PathParam("id_usuario") String id, @QueryParam("id_amigos") String userRequest) {
@@ -227,11 +184,12 @@ public class geoetsiinf {
 				&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) {
 			usuarioA = UsuariosDao.getInstance().getModel().get(id);
 			usuarioB = UsuariosDao.getInstance().getModel().get(userRequest);
+
 			for (int i = 0; i < usuarioA.getId_amigos().size() + 1; i++) {
 				if (i == usuarioA.getId_amigos().size())
-					return Response.status(Response.Status.UNAUTHORIZED).build();
+					return Response.status(Response.Status.UNAUTHORIZED).build(); //No se encuentra al amigo en la lista
 				if (usuarioA.getId_amigos(i).equals(userRequest)) {
-					UsuariosDao.getInstance().getModel().get(id).getId_amigos().remove(i);
+					UsuariosDao.getInstance().getModel().get(id).getId_amigos().remove(i); //Se encuentra y se elimina
 				}
 			}
 			for (int i = 0; i < usuarioB.getId_amigos().size() + 1; i++) {
@@ -241,6 +199,8 @@ public class geoetsiinf {
 					UsuariosDao.getInstance().getModel().get(userRequest).getId_amigos().remove(i);
 				}
 			}
+
+			//Se envia la respuesta
 			String res = "Usuario  " + id + " ha borrado de amigos a " + userRequest;
 			return Response.status(Response.Status.CREATED).entity(res)
 					.header("Location", uriInfo.getAbsolutePath().toString()).build();
