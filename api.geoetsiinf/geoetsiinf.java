@@ -1,6 +1,9 @@
 package rest1;
 import java.util.Iterator;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -52,14 +55,6 @@ public class geoetsiinf {
 	    }
 	     
 	    return Response.ok(s).build();
-	  }
-
-	  //Para pruebas del cliente
-	 @Path("Path")
-	 @GET
-	 @Consumes(MediaType.TEXT_PLAIN)
-	  public Response consultarPath() {
-		 return Response.status(Response.Status.OK).entity(uriInfo.getAbsolutePath().toString()).build();
 	  }
 	 
 	 //Ver a un usuario en especifico
@@ -161,7 +156,7 @@ public class geoetsiinf {
 			for (int i = 0; i < tesoros.size(); i++) {
 				if (userRequest==null)
 					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
-				if (userRequest.getId()==0)
+				if (userRequest.getId().equals("0"))
 					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
 				if (tesoros.get(i).getId() == userRequest.getId()) 
 					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
@@ -176,66 +171,170 @@ public class geoetsiinf {
 		}
 
 	}
+
 	@POST
 	@Path("{id_usuario}/amigos")
-	public Response addAmigo(@PathParam("id_usuario") String id, @QueryParam("id_amigos")String userRequest) {
+	public Response addAmigo(@PathParam("id_usuario") String id, @QueryParam("id_amigos") String userRequest) {
 		Usuarios usuarioA;
 		Usuarios usuarioB;
-		if(id.equals(userRequest))
+		if (id.equals(userRequest))
 			return Response.status(Response.Status.UNAUTHORIZED).build();
-		if (UsuariosDao.getInstance().getModel().containsKey(id)&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) {
+		if (UsuariosDao.getInstance().getModel().containsKey(id)
+				&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) {
 			usuarioA = UsuariosDao.getInstance().getModel().get(id);
 			usuarioB = UsuariosDao.getInstance().getModel().get(userRequest);
-			
-			for(int i =0 ; i<usuarioA.getId_amigos().size();i++ ) {
-				if(usuarioA.getId_amigos(i).equals(userRequest)) {
+
+			for (int i = 0; i < usuarioA.getId_amigos().size(); i++) {
+				if (usuarioA.getId_amigos(i).equals(userRequest)) {
 					return Response.status(Response.Status.UNAUTHORIZED).build();
 				}
 			}
-			for(int i =0 ; i<usuarioB.getId_amigos().size();i++ ) {
-				if(usuarioB.getId_amigos(i).equals(id)) {
+			for (int i = 0; i < usuarioB.getId_amigos().size(); i++) {
+				if (usuarioB.getId_amigos(i).equals(id)) {
 					return Response.status(Response.Status.UNAUTHORIZED).build();
 				}
-			}	
+			}
 			UsuariosDao.getInstance().getModel().get(id).setId_amigos(userRequest);
 			UsuariosDao.getInstance().getModel().get(userRequest).setId_amigos(id);
 			String res = "Usuario  " + id + " ha agreado a amigos a " + userRequest;
-			return Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
-		}
-		else {
+			return Response.status(Response.Status.CREATED).entity(res)
+					.header("Location", uriInfo.getAbsolutePath().toString()).build();
+		} else {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
 	}
+
 	@DELETE
 	@Path("{id_usuario}/amigos")
-	public Response deleteAmigo(@PathParam("id_usuario") String id, @QueryParam("id_amigos")String userRequest) {
+	public Response deleteAmigo(@PathParam("id_usuario") String id, @QueryParam("id_amigos") String userRequest) {
 		Usuarios usuarioA;
 		Usuarios usuarioB;
-		if(id.equals(userRequest))
+		if (id.equals(userRequest))
 			return Response.status(Response.Status.UNAUTHORIZED).build();
-		if (UsuariosDao.getInstance().getModel().containsKey(id)&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) {
+		if (UsuariosDao.getInstance().getModel().containsKey(id)
+				&& UsuariosDao.getInstance().getModel().containsKey(userRequest)) {
 			usuarioA = UsuariosDao.getInstance().getModel().get(id);
 			usuarioB = UsuariosDao.getInstance().getModel().get(userRequest);
-			for(int i =0 ; i<usuarioA.getId_amigos().size()+1;i++ ) {
-				if(i==usuarioA.getId_amigos().size())
+			for (int i = 0; i < usuarioA.getId_amigos().size() + 1; i++) {
+				if (i == usuarioA.getId_amigos().size())
 					return Response.status(Response.Status.UNAUTHORIZED).build();
-				if(usuarioA.getId_amigos(i).equals(userRequest)) {
+				if (usuarioA.getId_amigos(i).equals(userRequest)) {
 					UsuariosDao.getInstance().getModel().get(id).getId_amigos().remove(i);
 				}
 			}
-			for(int i =0 ; i<usuarioB.getId_amigos().size()+1;i++ ) {
-				if(i==usuarioB.getId_amigos().size())
+			for (int i = 0; i < usuarioB.getId_amigos().size() + 1; i++) {
+				if (i == usuarioB.getId_amigos().size())
 					return Response.status(Response.Status.UNAUTHORIZED).build();
-				if(usuarioB.getId_amigos(i).equals(id)) {
+				if (usuarioB.getId_amigos(i).equals(id)) {
 					UsuariosDao.getInstance().getModel().get(userRequest).getId_amigos().remove(i);
 				}
 			}
 			String res = "Usuario  " + id + " ha borrado de amigos a " + userRequest;
-			return Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
-		}
-		else {
+			return Response.status(Response.Status.CREATED).entity(res)
+					.header("Location", uriInfo.getAbsolutePath().toString()).build();
+		} else {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
 	}
-	  
+
+	@GET
+	@Path("{id_usuario}/amigos")
+	@Produces(MediaType.APPLICATION_XML)
+	public Response listaAmigos(@PathParam("id_usuario") String id, @QueryParam("nom_amigos") String nombr,
+			@QueryParam("pag") int pag, @QueryParam("lim") int lim) {
+		Usuarios usuario;
+		ArrayList<Usuarios>  id_amigos= new ArrayList<Usuarios>(); 
+		if (UsuariosDao.getInstance().getModel().containsKey(id)) {
+			usuario = UsuariosDao.getInstance().getModel().get(id);
+			ArrayList<String> amigos = usuario.getId_amigos();
+			if(pag>amigos.size()) {
+				return Response.status(Response.Status.BAD_REQUEST).build();	
+			}
+			for(int i = pag-1; i<amigos.size()&&lim-1>id_amigos.size();i++ ) {
+				Usuarios amigo = UsuariosDao.getInstance().getModel().get(amigos.get(i));
+				if(amigo.getNombre_completo().contains(nombr))
+					id_amigos.add(amigo);
+			}
+			if(id_amigos.size()==0)
+				return Response.status(Response.Status.NOT_FOUND).build();
+			return Response.ok(id_amigos).build();
+
+		} else
+			return Response.status(Response.Status.NOT_FOUND).build();		
+	}
+	//Filtro con fecha
+	@GET
+	@Path("/tesoros")
+	@Produces(MediaType.APPLICATION_XML)
+	public Response listaTesorosFecha(@QueryParam("id_user") String id, @QueryParam("fecha_lim") String fechaM,
+			@QueryParam("pag") int pag, @QueryParam("lim") int lim, @QueryParam("dif") String dif,
+			@QueryParam("tam") int tam, @QueryParam("terreno") String terreno) {
+		try {
+			Usuarios usuario;
+			if (UsuariosDao.getInstance().getModel().containsKey(id)) {
+				usuario = UsuariosDao.getInstance().getModel().get(id);
+				ArrayList<Tesoros> Histtes = usuario.getTesoros_encontrados();
+				Date fechaMax = (Date) new SimpleDateFormat("yyyy-mm-dd").parse(fechaM);
+				if(pag>Histtes.size()) {
+					return Response.status(Response.Status.BAD_REQUEST).build();	
+				}
+				ArrayList<Tesoros> lista = new ArrayList<Tesoros>(); 
+				for (int i = pag - 1; i < Histtes.size() && lim - 1 > Histtes.size(); i++) {
+					Date fecha =  (Date) new SimpleDateFormat("yyyy-mm-dd").parse(Histtes.get(i).getFecha_encontrado());
+					if(fecha.before(fechaMax)||fecha.equals(fechaMax)) {
+						Tesoros tesoro =TesorosDao.getInstance().getModel().get(Histtes.get(i).getId());
+						if(tesoro.getDificultad().equals(dif)&&tesoro.getTipo_terreno().equals(terreno)&&tesoro.getTam()==tam)
+							lista.add(tesoro);
+					}
+				}
+				if(lista.size()<=0)
+					return Response.status(Response.Status.NOT_FOUND).build();
+				TesorosList salida = new TesorosList(lista);
+				return Response.ok(salida).build();
+			}
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		} catch (NumberFormatException e) {
+			return Response.status(Response.Status.BAD_REQUEST)
+					.entity("No se pudieron convertir los Ã­ndices a nÃºmeros").build();
+		} catch (ParseException e) {
+			return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo leer la fecha").build();
+		}
+	}
+
+	// Filtro sin fecha
+	@GET
+	@Path("/tesoros")
+	@Produces(MediaType.APPLICATION_XML)
+	public Response listaTesorosnoFecha(@QueryParam("id_user") String id, @QueryParam("pag") int pag,
+			@QueryParam("lim") int lim, @QueryParam("dif") String dif, @QueryParam("tam") int tam,
+			@QueryParam("terreno") String terreno) {
+		try {
+			Usuarios usuario;
+			if (UsuariosDao.getInstance().getModel().containsKey(id)) {
+				usuario = UsuariosDao.getInstance().getModel().get(id);
+				ArrayList<Tesoros> Histtes = usuario.getTesoros_encontrados();
+
+				if (pag > Histtes.size()) {
+					return Response.status(Response.Status.BAD_REQUEST).build();
+				}
+				ArrayList<Tesoros> lista = new ArrayList<Tesoros>();
+				for (int i = pag - 1; i < Histtes.size() && lim - 1 > Histtes.size(); i++) {
+
+					Tesoros tesoro = TesorosDao.getInstance().getModel().get(Histtes.get(i).getId());
+					if (tesoro.getDificultad().equals(dif) && tesoro.getTipo_terreno().equals(terreno)
+							&& tesoro.getTam() == tam)
+						lista.add(tesoro);
+				}
+				if (lista.size() <= 0)
+					return Response.status(Response.Status.NOT_FOUND).build();
+				TesorosList salida = new TesorosList(lista);
+				return Response.ok(salida).build();
+			}
+			return Response.status(Response.Status.BAD_REQUEST).build();
+		} catch (NumberFormatException e) {
+			return Response.status(Response.Status.BAD_REQUEST)
+					.entity("No se pudieron convertir los Ã­ndices a nÃºmeros").build();
+		}
+	}
+
 }

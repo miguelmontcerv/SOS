@@ -4,7 +4,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 //import javax.xml.bind.annotation.XmlTransient;
 
-import java.util.Date;
+
+
 
 @XmlRootElement()
 public class Tesoros{
@@ -14,14 +15,15 @@ public class Tesoros{
     private float coor_x;
     private float coor_y;
     private String estado;
-    private Date fecha_post;
-    private Date fecha_update;
-    private Date fecha_encontrado;
-    private String id_encontrado;
+    private String fecha_post;
+    private String fecha_update;
+    private String fecha_encontrado;
+    private int id_encontrado;
     private String dificultad;
     private int tam;
     private String tipo_terreno;
 
+ 
     @XmlElement(name="id_tesoro")
     public String getId() {
         return id;
@@ -71,34 +73,34 @@ public class Tesoros{
     }
     
     @XmlElement(name="fecha_post")
-    public Date getFecha_post() {
+    public String getFecha_post() {
         return fecha_post;
     }
-    public void setFecha_post(Date fecha_post) {
+    public void setFecha_post(String fecha_post) {
         this.fecha_post = fecha_post;
     }
 
     @XmlElement(name="fecha_update")
-    public Date getFecha_update() {
+    public String getFecha_update() {
         return fecha_update;
     }
-    public void setFecha_update(Date fecha_update) {
+    public void setFecha_update(String fecha_update) {
         this.fecha_update = fecha_update;
     }
     
     @XmlElement(name="fecha_encontrado")
-    public Date getFecha_encontrado() {
+    public String getFecha_encontrado() {
         return fecha_encontrado;
     }
-    public void setFecha_encontrado(Date fecha_encontrado) {
+    public void setFecha_encontrado(String fecha_encontrado) {
         this.fecha_encontrado = fecha_encontrado;
     }
     
     @XmlElement(name="id_encontrado")
-    public String getId_encontrado() {
+    public int getId_encontrado() {
         return id_encontrado;
     }
-    public void setId_encontrado(String id_encontrado) {
+    public void setId_encontrado(int id_encontrado) {
         this.id_encontrado = id_encontrado;
     }
 
