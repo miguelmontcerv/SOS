@@ -8,8 +8,8 @@ import java.util.Date;
 
 @XmlRootElement()
 public class Tesoros{
-    private int id;
-    private int id_user;
+    private String id;
+    private String id_user;
     private String pista;
     private float coor_x;
     private float coor_y;
@@ -17,24 +17,24 @@ public class Tesoros{
     private Date fecha_post;
     private Date fecha_update;
     private Date fecha_encontrado;
-    private int id_encontrado;
+    private String id_encontrado;
     private String dificultad;
     private int tam;
     private String tipo_terreno;
 
     @XmlElement(name="id_tesoro")
-    public int getId() {
+    public String getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     @XmlElement(name="id_user")
-    public int getId_user() {
+    public String getId_user() {
         return id_user;
     }
-    public void setId_user(int id_user) {
+    public void setId_user(String id_user) {
         this.id_user = id_user;
     }
     
@@ -95,10 +95,10 @@ public class Tesoros{
     }
     
     @XmlElement(name="id_encontrado")
-    public int getId_encontrado() {
+    public String getId_encontrado() {
         return id_encontrado;
     }
-    public void setId_encontrado(int id_encontrado) {
+    public void setId_encontrado(String id_encontrado) {
         this.id_encontrado = id_encontrado;
     }
 
