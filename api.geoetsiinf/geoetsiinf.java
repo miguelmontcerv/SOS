@@ -40,9 +40,9 @@ public class geoetsiinf {
 	  Request request;
 	 
 	 //Obtenemos una lista de los usuarios:
-	 @GET
-	 @Consumes(MediaType.TEXT_PLAIN)
-	  public Response getTodosBrowser() {
+	@GET
+	@Consumes(MediaType.TEXT_PLAIN)
+	public Response getTodosBrowser() {
 	    List<Usuarios> users = new ArrayList<Usuarios>();
 	    users.addAll(UsuariosDao.getInstance().getModel().values());
 	    
@@ -56,23 +56,34 @@ public class geoetsiinf {
 	    }
 	     
 	    return Response.ok(s).build();
-	  }
+	}
+
+	//Para pruebas del cliente
+	@Path("Path")
+	@GET
+	@Consumes(MediaType.TEXT_PLAIN)
+	 public Response consultarPath() {
+		return Response.status(Response.Status.OK).entity(uriInfo.getAbsolutePath().toString()).build();
+	 }
 	 
 	 //Ver a un usuario en especifico
 	 @Path("{id_usuario}")
 	  @GET
 	  @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	  public Response getUsuario(@PathParam("id_usuario") String id) {
-		  Response res;
+	  public Usuarios getUsuario(@PathParam("id_usuario") String id) {
+		 Response res;
+		 
 		  Usuarios usuario;
 		  if(UsuariosDao.getInstance().getModel().containsKey(id)) {
 			  usuario = UsuariosDao.getInstance().getModel().get(id);
 		      res = Response.ok(usuario).build();
+		      
+		      return usuario;
 		  }  else {
 			  //throw new RuntimeException("Get: Tarea con id " + id +  " no encontrada");
 		      res = Response.status(Response.Status.NOT_FOUND).build();
+		      return null;
 		  }
-		  return res;
 	  }
 	 
 	 //Agregar a un usuario definiendo su id a mano

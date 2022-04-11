@@ -36,6 +36,8 @@ public class Ventana extends JFrame{
 	WebTarget target;
 	
 	///////////////
+	
+	Usuarios user;
     
     public Ventana(){
         setSize(1240,720);
@@ -306,10 +308,10 @@ public class Ventana extends JFrame{
     	    public void actionPerformed(ActionEvent e){
     	        JButton btn1 = new JButton(); btn1 = (JButton) e.getSource();
     	        if(btn1.getText() == "Iniciar Sesion"){
-    	        	System.out.println(btn1.getText());        
+    	        	IniciarSesion();      
     	        }
     	        if(btn1.getText() == "Agregar un nuevo usuario"){
-    	        	System.out.println(btn1.getText());  
+    	        	crearUser(null);
     	        }
     	        if(btn1.getText() == "Consultar perfil"){
     	        	System.out.println(btn1.getText());
@@ -321,7 +323,7 @@ public class Ventana extends JFrame{
     	        	System.out.println(btn1.getText());
     	        }
     	        if(btn1.getText() == "Listado de Usuarios"){                                        
-    	        	System.out.println(btn1.getText());
+    	        	listaUsuarios();
     	        }
     	        if(btn1.getText() == "Agregar/Editar Tesoro"){
     	        	System.out.println(btn1.getText());
@@ -364,6 +366,62 @@ public class Ventana extends JFrame{
     	button12.addActionListener(oyente);
     	button13.addActionListener(oyente);
     	button14.addActionListener(oyente);
+    	
+    }
+
+    public void IniciarSesion(){
+    	//Verificamos sin un usuario esta en la pagina
+    	String id_temp = JOptionPane.showInputDialog(null,"Ingrese el Id del usuario con el que desea registrarse: ");
+    	user = target.path("v1").path("usuarios").path(id_temp).request().accept(MediaType.APPLICATION_XML).get(Usuarios.class);
+    	
+    	if(user == null) {
+    		String res = JOptionPane.showInputDialog(null,"Usuario no encontrado, desea crear un usuario con el id "+id_temp+"? (s/n)");
+    		if(res.charAt(0) == 's')
+    			crearUser(id_temp);
+    		else if(res.charAt(0) != 'n')
+    			JOptionPane.showMessageDialog(null,"Opcion no valida");
+    	}
+    		
+    	else 
+    		JOptionPane.showMessageDialog(null,"Bienvenido usuario con user "+user.getId()+" y nombre es "+user.getUsuario()+" ha iniciado sesion correctamente");
+    }
+    
+    public void crearUser(String id) {
+	   Usuarios usTemporal = new Usuarios();
+	   String res;
+	   
+	   if (id != null)
+		   usTemporal.setId(id);
+	   else
+		   usTemporal.setId(JOptionPane.showInputDialog(null,"Agrege el id del usuario"));
+	   usTemporal.setUsuario(JOptionPane.showInputDialog(null,"Agrege el nombre de usuario"));
+	   usTemporal.setNombre_completo(JOptionPane.showInputDialog(null,"Agrega el nombre completo de usuario"));
+	   
+	   Response response = target.path("v1").path("usuarios").request().accept(MediaType.APPLICATION_XML).post(Entity.xml(usTemporal),Response.class);
+	   
+	   
+	   if(response.getStatus() == 201) {
+		   JOptionPane.showMessageDialog(null,"El usuario con el id "+ usTemporal.getId() + " se ha creado correctamente");
+		   res = JOptionPane.showInputDialog(null,"Quiere iniciar sesion como el usuario "+usTemporal.getUsuario()+"? (s/n)");
+		   
+		   if(res.charAt(0) =='s') {
+			   user = usTemporal;
+			   usTemporal = null;
+			   JOptionPane.showMessageDialog(null,"Bienvenido usuario con user "+user.getId()+" y nombre es "+user.getUsuario()+" ha iniciado sesion correctamente");
+		   }
+   		   else if(res.charAt(0) != 'n')
+   			   JOptionPane.showMessageDialog(null,"Opcion no valida");
+	   }
+	   else {
+		   JOptionPane.showMessageDialog(null,"No ha sido posible crear el usuario, problema: "+response.getStatus()+".-"+response.getEntity());
+		   areaTexto.append("No ha sido posible crear el usuario, problema:\n"+response.getStatus()+"\n.-"+response.getEntity());
+	   }
+		   
+		   
+   }
+
+    public void listaUsuarios() {
+    	JOptionPane.showMessageDialog(null,target.path("v1").path("usuarios").request().accept(MediaType.TEXT_PLAIN).get(String.class));
     	
     }
 }
