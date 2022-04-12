@@ -105,8 +105,8 @@ public class geoetsiinf {
 	}
 
 	//Se agrega un tesoro al usuario que se marca en el Path, la info del tesoro es mandada por el body
-	@PUT
-	@Path("{id_usuario}")
+	@POST
+	@Path("{id_usuario}/tesoros_encontrados")
 	@Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
 	public Response addTesoroHist(@PathParam("id_usuario") String id, Tesoros userRequest) {
 
@@ -125,6 +125,36 @@ public class geoetsiinf {
 				
 			}
 			UsuariosDao.getInstance().getModel().get(id).setTesoros_encontrados(userRequest);
+			String res = "Se ha agregado el tesoro " + userRequest.getId();
+			return Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
+		} else {
+			// throw new RuntimeException("Get: Tarea con id " + id + " no encontrada");
+			return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+		}
+
+	}
+
+	//Se agrega un tesoro al usuario que se marca en el Path, la info del tesoro es mandada por el body
+	@POST
+	@Path("{id_usuario}/tesoros_publicados")
+	@Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
+	public Response addTesoroPubli(@PathParam("id_usuario") String id, Tesoros userRequest) {
+
+		Usuarios usuario;
+		if (UsuariosDao.getInstance().getModel().containsKey(id)) { //si el usuario exite
+			usuario = UsuariosDao.getInstance().getModel().get(id);
+			ArrayList<Tesoros> tesoros = usuario.getTesoros_publicados();
+
+			for (int i = 0; i < tesoros.size(); i++) {
+				if (userRequest==null)
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+				if (userRequest.getId().equals("0"))
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+				if (tesoros.get(i).getId() == userRequest.getId()) 
+					return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
+				
+			}
+			UsuariosDao.getInstance().getModel().get(id).setTesoros_publicados(userRequest);
 			String res = "Se ha agregado el tesoro " + userRequest.getId();
 			return Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
 		} else {

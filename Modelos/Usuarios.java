@@ -16,6 +16,8 @@ public class Usuarios {
 
     private ArrayList<String>  id_amigos= new ArrayList<String>(); 
     private ArrayList<Tesoros> tesoros_encontrados = new ArrayList<Tesoros>(); 
+    private ArrayList<Tesoros> tesoros_publicados = new ArrayList<Tesoros>();
+
     
     @XmlElement(name="id_usuario")
 
@@ -95,6 +97,18 @@ public class Usuarios {
     	}
     	public void setTesoros_encontrados(Tesoros tesoro) {
     		tesoros_encontrados.add(tesoro);
+        }
+
+    @XmlElement(name="tesoros_publicados")
+    
+    	public ArrayList<Tesoros> getTesoros_publicados(){
+    		return tesoros_publicados;
+    	}
+    	public Tesoros getTesoros_publicados(int index) {
+    		return tesoros_publicados.get(index);
+    	}
+    	public void setTesoros_publicados(Tesoros tesoro) {
+    		tesoros_publicados.add(tesoro);
         }
 
 }
