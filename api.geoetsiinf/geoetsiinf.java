@@ -209,32 +209,43 @@ public class geoetsiinf {
 		}
 	}
 
+	//Devuelve el listado de usuarios con filtros
 	@GET
 	@Path("{id_usuario}/amigos")
 	@Produces(MediaType.APPLICATION_XML)
 	public Response listaAmigos(@PathParam("id_usuario") String id, @QueryParam("nom_amigos") String nombr,
 			@QueryParam("pag") int pag, @QueryParam("lim") int lim) {
+		
 		Usuarios usuario;
 		ArrayList<Usuarios>  id_amigos= new ArrayList<Usuarios>(); 
+		
 		if (UsuariosDao.getInstance().getModel().containsKey(id)) {
 			usuario = UsuariosDao.getInstance().getModel().get(id);
-			ArrayList<String> amigos = usuario.getId_amigos();
-			if(pag>amigos.size()) {
+			
+			ArrayList<String> amigos = usuario.getId_amigos(); //Se genera un arreglo con los id de los amigos de user
+			
+			if(pag>amigos.size() || lim > amigos.size()) {
 				return Response.status(Response.Status.BAD_REQUEST).build();	
 			}
-			for(int i = pag-1; i<amigos.size()&&lim-1>id_amigos.size();i++ ) {
+			
+			for(int i = pag; i <=  lim ;i++ ) {
+				System.out.println(i +  "<=" +lim);
 				Usuarios amigo = UsuariosDao.getInstance().getModel().get(amigos.get(i));
+				System.out.println("id de amigos en la lista "+amigo.getId());
+				
 				if(amigo.getNombre_completo().contains(nombr))
 					id_amigos.add(amigo);
 			}
+			
 			if(id_amigos.size()==0)
 				return Response.status(Response.Status.NOT_FOUND).build();
 			UsuariosList salida = new UsuariosList(id_amigos);
 			return Response.ok(salida).build();
-
 		} else
 			return Response.status(Response.Status.NOT_FOUND).build();		
 	}
+
+
 	//Filtro con fecha
 	@GET
 	@Path("/tesoros/fecha")
