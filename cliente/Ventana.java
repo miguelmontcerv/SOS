@@ -326,7 +326,7 @@ public class Ventana extends JFrame{
     	        	listaUsuarios();
     	        }
     	        if(btn1.getText() == "Agregar/Editar Tesoro"){
-    	        	System.out.println(btn1.getText());
+    	        	agregarEditarTesoro();
     	        }
     	        if(btn1.getText() == "Eliminar Tesoro"){
     	        	System.out.println(btn1.getText());
@@ -394,6 +394,8 @@ public class Ventana extends JFrame{
 		   usTemporal.setId(id);
 	   else
 		   usTemporal.setId(JOptionPane.showInputDialog(null,"Agrege el id del usuario"));
+	   
+	   //pedir el resto de datos del usuario
 	   usTemporal.setUsuario(JOptionPane.showInputDialog(null,"Agrege el nombre de usuario"));
 	   usTemporal.setNombre_completo(JOptionPane.showInputDialog(null,"Agrega el nombre completo de usuario"));
 	   
@@ -424,4 +426,41 @@ public class Ventana extends JFrame{
     	JOptionPane.showMessageDialog(null,target.path("v1").path("usuarios").request().accept(MediaType.TEXT_PLAIN).get(String.class));
     	
     }
+    
+    public void agregarEditarTesoro() {
+    	//construimos un objeto de la clase Tesoros y dejamos que el user lo llene, despues se lo mandamos al server
+    	
+    	Tesoros tesoro = new Tesoros();
+    	
+    	tesoro.setId(JOptionPane.showInputDialog(null,"Indique el id del tesoro"));
+    	JOptionPane.showMessageDialog(null,"Se agregara el tesoro "+tesoro.getId()+" al usuario "+user.getUsuario());
+    	tesoro.setId_user(user.getId());
+    	tesoro.setPista(JOptionPane.showInputDialog(null,"Indique la pista del tesoro"));
+    	
+    	tesoro.setCoor_x(Float.parseFloat(JOptionPane.showInputDialog(null,"Indique la coordenada en x")));
+    	tesoro.setCoor_y(Float.parseFloat(JOptionPane.showInputDialog(null,"Indique la coordenada en y")));
+    	
+    	tesoro.setDificultad(JOptionPane.showInputDialog(null,"Indique la dificultad del tesoro"));
+    	tesoro.setTipo_terreno(JOptionPane.showInputDialog(null,"Indique el tipo de terreno del tesoro"));
+    	tesoro.setTam(Integer.parseInt(JOptionPane.showInputDialog(null,"Indique el tamaño del tesoro")));
+    	
+    	tesoro.setFecha_encontrado(null);
+    	tesoro.setFecha_post(null);
+    	tesoro.setFecha_update(null);
+    	tesoro.setEstado("Sin Encontrar");
+    	tesoro.setId_encontrado(null);
+    	
+    	Response response = target.path("v1").path("usuarios").path(user.getId()).path("tesoros_publicados").request().accept(MediaType.APPLICATION_XML).post(Entity.xml(tesoro),Response.class);
+ 	   
+ 	   
+ 	   if(response.getStatus() == 201) {
+ 		  JOptionPane.showMessageDialog(null,"Se ha agregado el tesoro "+tesoro.getId()+" al usuario "+user.getUsuario());
+ 	   }
+ 	   else{
+		   JOptionPane.showMessageDialog(null,"No ha sido posible crear el tesoro, problema: "+response.getStatus()+".-"+response.getEntity());
+		   areaTexto.append("No ha sido posible crear el usuario, problema:\n"+response.getStatus()+"\n.-"+response.getEntity());
+	   }
+    	
+    }
+    
 }
