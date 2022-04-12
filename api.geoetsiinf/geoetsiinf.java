@@ -229,14 +229,15 @@ public class geoetsiinf {
 			}
 			if(id_amigos.size()==0)
 				return Response.status(Response.Status.NOT_FOUND).build();
-			return Response.ok(id_amigos).build();
+			UsuariosList salida = new UsuariosList(id_amigos);
+			return Response.ok(salida).build();
 
 		} else
 			return Response.status(Response.Status.NOT_FOUND).build();		
 	}
 	//Filtro con fecha
 	@GET
-	@Path("/tesoros")
+	@Path("/tesoros/fecha")
 	@Produces(MediaType.APPLICATION_XML)
 	public Response listaTesorosFecha(@QueryParam("id_user") String id, @QueryParam("fecha_lim") String fechaM,
 			@QueryParam("pag") int pag, @QueryParam("lim") int lim, @QueryParam("dif") String dif,
@@ -311,7 +312,7 @@ public class geoetsiinf {
 
 	// Filtro con fecha
 	@GET
-	@Path("/tesoros")
+	@Path("/tesoros/cercaFe")
 	@Produces(MediaType.APPLICATION_XML)
 	public Response listaTesorosCercaFecha(@QueryParam("coor_x") float X, @QueryParam("coor_y") float Y,
 			@QueryParam("fecha_lim") String fechaM, @QueryParam("pag") int pag, @QueryParam("lim") int lim,
@@ -355,7 +356,7 @@ public class geoetsiinf {
 
 	// Filtro sin fecha
 	@GET
-	@Path("/tesoros")
+	@Path("/tesoros/cerca")
 	@Produces(MediaType.APPLICATION_XML)
 	public Response listaTesorosCercaFecha(@QueryParam("coor_x") float X, @QueryParam("coor_y") float Y,
 			@QueryParam("pag") int pag, @QueryParam("lim") int lim, @QueryParam("dif") String dif,
