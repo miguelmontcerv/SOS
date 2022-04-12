@@ -3,6 +3,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
 
 /* Librerias para comunicacion */
 import java.net.URI;
@@ -16,6 +17,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.client.ClientConfig;
+
 
 public class Ventana extends JFrame{
     
@@ -314,7 +316,7 @@ public class Ventana extends JFrame{
     	        	crearUser(null);
     	        }
     	        if(btn1.getText() == "Consultar perfil"){
-    	        	System.out.println(btn1.getText());
+    	        	consultarPerfil();
     	        }
     	        if(btn1.getText() == "Actualizar Informacion"){
     	        	System.out.println(btn1.getText());     
@@ -338,13 +340,13 @@ public class Ventana extends JFrame{
     	        	System.out.println(btn1.getText());
     	        }
     	        if(btn1.getText() == "Agregar Amigos"){
-    	        	System.out.println(btn1.getText());
+    	        	agregarAmigo();
     	        }
     	        if(btn1.getText() == "Eliminar Amigo"){
-    	        	System.out.println(btn1.getText());
+    	        	eliminarAmigo();
     	        }
     	        if(btn1.getText() == "Consultar Amigo"){
-    	        	System.out.println(btn1.getText());
+    	        	consultarAmigos();
     	        }
     	        if(btn1.getText() == "Tesoros Cercanos a ..."){
     	        	System.out.println(btn1.getText());
@@ -427,6 +429,33 @@ public class Ventana extends JFrame{
     	
     }
     
+    public void consultarPerfil() {
+    	String info = "";
+    	String res = JOptionPane.showInputDialog(null,"Quiere consultar su propio perfil? (s/n)");
+    	
+    	if(res.charAt(0) =='s') {
+    		info = info + "El id es: " +user.getId()+", el nombre de usuario es: "+user.getUsuario()
+    		+", su nombre completo es: "+user.getNombre_completo()+", su correo es: "+user.getCorreo()+
+    		", su edad es: "+user.getEdad()+" y su localidad es: "+user.getLocalidad();
+    		
+    		JOptionPane.showMessageDialog(null,info);
+    	}
+    	else if(res.charAt(0) =='n') {
+    		String id_temp = JOptionPane.showInputDialog(null,"Ingrese el Id del usuario que desea ver su perfil: ");
+        	Usuarios user_temp = target.path("v1").path("usuarios").path(id_temp).request().accept(MediaType.APPLICATION_XML).get(Usuarios.class);
+        	
+        	if(user_temp != null){
+        		info = info + "El id es: " +user_temp.getId()+", el nombre de usuario es: "+user_temp.getUsuario()
+        		+", su nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
+        		", su edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad();
+        	
+        		JOptionPane.showMessageDialog(null,info);
+        	}
+        	else JOptionPane.showMessageDialog(null,"El usuario con id "+id_temp+" no fue encontrado");
+    	}
+    	else JOptionPane.showMessageDialog(null,"Opcion no valida");
+    }
+
     public void agregarEditarTesoro() {
     	//construimos un objeto de la clase Tesoros y dejamos que el user lo llene, despues se lo mandamos al server
     	
@@ -462,5 +491,52 @@ public class Ventana extends JFrame{
 	   }
     	
     }
+
+    public void agregarAmigo(){
+    	String id_amigo = JOptionPane.showInputDialog(null,"Indique el id del amigo que desea agregar");
+    	
+    	
+    	Response response = target.path("v1").path("usuarios").path(user.getId()).path("amigos").queryParam("id_amigos", id_amigo).request().post(null,Response.class);
+    	
+    	if(response.getStatus() == 201) 
+ 		   JOptionPane.showMessageDialog(null,"Ahora es amigo del usuario con id: "+id_amigo);
+    	else{
+ 		   JOptionPane.showMessageDialog(null,"No ha sido posible agregar a "+id_amigo+" como amigo, problema: "+response.getStatus()+".-"+response.getEntity());
+ 		   areaTexto.append("No ha sido posible agregarlo como amigo, problema:\n"+response.getStatus()+"\n.-"+response.getEntity());
+ 	   }
+    }
+
+    public void eliminarAmigo() {
+    	String id_amigo = JOptionPane.showInputDialog(null,"Indique el id del amigo que desea eliminar");
+    	
+    	
+    	Response response = target.path("v1").path("usuarios").path(user.getId()).path("amigos").queryParam("id_amigos", id_amigo).request().delete();
+    	
+    	if(response.getStatus() == 201) 
+ 		   JOptionPane.showMessageDialog(null,"Se ha eliminado el amigo con el usuario con id: "+id_amigo);
+    	else{
+ 		   JOptionPane.showMessageDialog(null,"No ha sido posible eliminar a "+id_amigo+" como amigo, problema: "+response.getStatus()+".-"+response.getEntity());
+ 		   areaTexto.append("No ha sido posible eliminar, problema:\n"+response.getStatus()+"\n.-"+response.getEntity());
+ 	   }
+    }
     
+   public void consultarAmigos() {
+	   String patron = JOptionPane.showInputDialog(null,"Ingrese el patron de busqueda del nombre: ");
+	   String pag = JOptionPane.showInputDialog(null,"Ingrese el limite inferior: ");
+	   String lim = JOptionPane.showInputDialog(null,"Ingrese el limite superior: ");
+	   
+	   UsuariosList salida = new UsuariosList();
+	   
+	   salida = target.path("v1").path("usuarios").path(user.getId()).path("amigos").queryParam("nom_amigos", patron).queryParam("pag", pag).queryParam("lim", lim).request().accept(MediaType.APPLICATION_XML).get(UsuariosList.class);
+	   
+	   Iterator<Usuarios> i  = salida.getL().iterator();
+	    
+	    String s = "";
+	    while (i.hasNext()) {
+	    	s = s + i.next().getUsuario() + "\n";
+	    }
+	    
+	    JOptionPane.showMessageDialog(null,s);
+	   
+   }
 }
