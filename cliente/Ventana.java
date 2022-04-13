@@ -509,7 +509,6 @@ public class Ventana extends JFrame{
     public void eliminarAmigo() {
     	String id_amigo = JOptionPane.showInputDialog(null,"Indique el id del amigo que desea eliminar");
     	
-    	
     	Response response = target.path("v1").path("usuarios").path(user.getId()).path("amigos").queryParam("id_amigos", id_amigo).request().delete();
     	
     	if(response.getStatus() == 201) 
@@ -521,14 +520,36 @@ public class Ventana extends JFrame{
     }
     
    public void consultarAmigos() {
+	UsuariosList salida = new UsuariosList();
+	String res = JOptionPane.showInputDialog(null,"Quiere filtrar a sus amigos por nombre y paginacion? (s/n)");
+	Response respuesta;
+	
+   	if(res.charAt(0) =='s') {
 	   String patron = JOptionPane.showInputDialog(null,"Ingrese el patron de busqueda del nombre: ");
 	   String pag = JOptionPane.showInputDialog(null,"Ingrese el limite inferior: ");
 	   String lim = JOptionPane.showInputDialog(null,"Ingrese el limite superior: ");
 	   
-	   UsuariosList salida = new UsuariosList();
+	   respuesta = target.path("v1").path("usuarios").path(user.getId()).path("amigos").queryParam("nom_amigos", patron).queryParam("pag", pag).queryParam("lim", lim).request().accept(MediaType.APPLICATION_XML).get();
 	   
-	   salida = target.path("v1").path("usuarios").path(user.getId()).path("amigos").queryParam("nom_amigos", patron).queryParam("pag", pag).queryParam("lim", lim).request().accept(MediaType.APPLICATION_XML).get(UsuariosList.class);
+	   if(respuesta.getStatus() != 200) {
+		   JOptionPane.showMessageDialog(null,"No es posible consultar a este usuario");
+		   return;
+	   }
+   	
+	  salida = target.path("v1").path("usuarios").path(user.getId()).path("amigos").queryParam("nom_amigos", patron).queryParam("pag", pag).queryParam("lim", lim).request().accept(MediaType.APPLICATION_XML).get(UsuariosList.class);
+   	}   
+   	else if(res.charAt(0) =='n') {
+   		respuesta = target.path("v1").path("usuarios").path(user.getId()).path("amigos").path("SP").request().accept(MediaType.APPLICATION_XML).get();
+   		
+   		if(respuesta.getStatus() != 200) {
+ 		   JOptionPane.showMessageDialog(null,"No es posible consultar a este usuario");
+ 		   return;
+ 	   }
+   		
+   		salida = target.path("v1").path("usuarios").path(user.getId()).path("amigos").path("SP").request().accept(MediaType.APPLICATION_XML).get(UsuariosList.class);
+   	}
 	   
+		   
 	   Iterator<Usuarios> i  = salida.getL().iterator();
 	    
 	    String s = "";

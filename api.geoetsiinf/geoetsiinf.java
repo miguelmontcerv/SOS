@@ -34,37 +34,38 @@ import javax.ws.rs.client.Entity;
 @Path("/usuarios")
 public class geoetsiinf {
 
-	@Context
-	private UriInfo uriInfo;
-   @Context
-	Request request;
+@Context
+private UriInfo uriInfo;
+@Context
+Request request;
    
   //Genera una lista de todos los usuario en la aplicacion
-	  @GET
-	  @Consumes(MediaType.TEXT_PLAIN)
-	  public Response getListaUsuarios() {
-	  List<Usuarios> users = new ArrayList<Usuarios>();
-	  users.addAll(UsuariosDao.getInstance().getModel().values());
+@GET
+@Consumes(MediaType.TEXT_PLAIN)
+public Response getListaUsuarios() {
+	List<Usuarios> users = new ArrayList<Usuarios>();
+	users.addAll(UsuariosDao.getInstance().getModel().values());
 	  
-	  UsuariosList lista = new UsuariosList(users);
+	UsuariosList lista = new UsuariosList(users);
 	  
-	  Iterator<Usuarios> i  = lista.getL().iterator();
+	Iterator<Usuarios> i  = lista.getL().iterator();
 	  
-	  String s = "";
-	  while (i.hasNext()) {
-		  s = s + i.next().getUsuario() + "\n";
-	  }
-	   
-	  return Response.ok(s).build();
+	String s = "";
+	while (i.hasNext()) {
+		s = s + i.next().getUsuario() + "\n";
 	}
+	   
+	return Response.ok(s).build();
+	
+}
    
 	  //Metodo para obtener el path del proyecto
-	  @Path("Path")
-	  @GET
-	  @Consumes(MediaType.TEXT_PLAIN)
-	  public Response consultarPath() {
+	@Path("Path")
+	@GET
+	@Consumes(MediaType.TEXT_PLAIN)
+	public Response consultarPath() {
 		  return Response.status(Response.Status.OK).entity(uriInfo.getAbsolutePath().toString()).build();
-	   }
+	}
    
   //Ver a un usuario en especifico, si lo encuentra regresa una instancia de él, sino regresa null
    @Path("{id_usuario}")
@@ -311,7 +312,7 @@ public class geoetsiinf {
 
 	//Filtro con fecha
 	@GET
-	@Path("/tesoros/fecha")
+	@Path("{id_user}/tesoros/fecha")
 	@Produces(MediaType.APPLICATION_XML)
 	public Response listaTesorosFecha(@QueryParam("id_user") String id, @QueryParam("fecha_lim") String fechaM,
 			@QueryParam("pag") int pag, @QueryParam("lim") int lim, @QueryParam("dif") String dif,
