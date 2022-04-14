@@ -342,7 +342,32 @@ public class geoetsiinf {
 		     
 		    return Response.ok(s).build();
 		}
+
+		@DELETE
+		@Path("{id_user}/tesoros/{id_tesoro}")
+		public Response eliminarTesoro(@PathParam("id_user") String id,@PathParam("id_tesoro") String id_tesoro){
+			Usuarios usuario;
+			Tesoros tesoro;
+			
+			if (UsuariosDao.getInstance().getModel().containsKey(id) && TesorosDao.getInstance().getModel().containsKey(id_tesoro)) {
+				usuario = UsuariosDao.getInstance().getModel().get(id);
+				tesoro = TesorosDao.getInstance().getModel().get(id_tesoro);
+				
+				if(tesoro.getId_user().equals(usuario.getId())){
+					for (int i = 0; i < usuario.getTesoros_publicados().size() + 1; i++) {
+						if(usuario.getTesoros_publicados(i).getId().equals(tesoro.getId())) {
+							TesorosDao.getInstance().getModel().remove(id_tesoro); //Se encuentra y se elimina
+							System.out.println("La iteracion a eliminar es: "+i);
+							UsuariosDao.getInstance().getModel().get(id).getTesoros_publicados().remove(i); //Se encuentra y se elimina
+							return Response.ok().build();
+						}
+					}	
+				} else return Response.status(Response.Status.BAD_REQUEST).entity("No es el dueño del tesoro, no lo puede eliminar").build();
+		} else return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el user o el tesoro").build();
 	
+			return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el tesoro").build();
+	}
+
 		//Filtro con fecha
 		@GET
 		@Path("{id_user}/tesoros/fecha")
