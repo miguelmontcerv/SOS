@@ -331,10 +331,10 @@ public class Ventana extends JFrame{
     	        	agregarEditarTesoro();
     	        }
     	        if(btn1.getText() == "Eliminar Tesoro"){
-    	        	System.out.println(btn1.getText());
+    	        	eliminarTesoroPublicado();
     	        }
     	        if(btn1.getText() == "Consultar Tesoros"){
-    	        	System.out.println(btn1.getText());
+    	        	consultarTesoros();
     	        }
     	        if(btn1.getText() == "Buscar Tesoro!"){
     	        	System.out.println(btn1.getText());
@@ -473,8 +473,8 @@ public class Ventana extends JFrame{
     	tesoro.setTipo_terreno(JOptionPane.showInputDialog(null,"Indique el tipo de terreno del tesoro"));
     	tesoro.setTam(Integer.parseInt(JOptionPane.showInputDialog(null,"Indique el tamaño del tesoro")));
     	
-    	tesoro.setFecha_encontrado(null);
-    	tesoro.setFecha_post(null);
+    	tesoro.setFecha_encontrado("2022-05-01");
+    	tesoro.setFecha_post("2022-04-11");
     	tesoro.setFecha_update(null);
     	tesoro.setEstado("Sin Encontrar");
     	tesoro.setId_encontrado(null);
@@ -518,7 +518,7 @@ public class Ventana extends JFrame{
  		   areaTexto.append("No ha sido posible eliminar, problema:\n"+response.getStatus()+"\n.-"+response.getEntity());
  	   }
     }
-    
+   
    public void consultarAmigos() {
 	UsuariosList salida = new UsuariosList();
 	String res = JOptionPane.showInputDialog(null,"Quiere filtrar a sus amigos por nombre y paginacion? (s/n)");
@@ -560,4 +560,72 @@ public class Ventana extends JFrame{
 	    JOptionPane.showMessageDialog(null,s);
 	   
    }
+
+   public void eliminarTesoroPublicado() {
+	   String id_tesoro = JOptionPane.showInputDialog(null,"Indique el id del tesoro publicado que desea eliminar");
+	   
+	   Response response = target.path("v1").path("usuarios").path(user.getId()).path("tesoros").path(id_tesoro).request().delete();
+	   
+	   if(response.getStatus() == 200) 
+ 		   JOptionPane.showMessageDialog(null,"Se ha eliminado el tesoro con el usuario con id: "+id_tesoro);
+    	else{
+ 		   JOptionPane.showMessageDialog(null,"No ha sido posible eliminar el tesoro "+id_tesoro+", problema: "+response.getStatus()+".-"+response.getEntity());
+ 		   areaTexto.append("No ha sido posible eliminar, problema:\n"+response.getStatus()+"\n.-"+response.getEntity());
+ 	   }
+   }
+   
+   public void consultarTesoros() {
+	   
+	   //Parametros de la busqueda
+	   String fecha, pag, lim, dif, tam, terreno;
+	   Response respuesta;
+	   Tesoros tesoroAx;
+	   TesorosList salida;
+	   
+	   String opc = JOptionPane.showInputDialog(null,"Ingrese una de las siguientes opciones: \n1.Todos los tesoros\n2.Mis tesoros publicados\n3.Mis tesoros encontrados");
+	   switch(opc) {
+	   case "1":
+		   String impr;
+		   impr =  target.path("v1").path("usuarios").path("tesoros").request().accept(MediaType.APPLICATION_XML).get(String.class);
+		   JOptionPane.showMessageDialog(null,impr);
+		   
+		   break;
+		   
+	   case "2":
+		   		fecha = JOptionPane.showInputDialog(null,"Ingresa la fecha limite de la busqueda en el siguiente formato yyyy-mm-dd: ");
+		   		pag = JOptionPane.showInputDialog(null,"Ingresa el tesoro a partir del cual se iniciara la busqueda: ");
+		   		lim = JOptionPane.showInputDialog(null,"Ingresa el tesoro a partir del cual se terminara la busqueda: ");
+		   		dif = JOptionPane.showInputDialog(null,"Ingresa la dificulta del tesoro: ");
+		   		tam = JOptionPane.showInputDialog(null,"Ingresa el tamanio del tesoro: ");
+		   		terreno = JOptionPane.showInputDialog(null,"Ingresa el terreno del tesoro: ");
+		   		
+		   		respuesta = target.path("v1").path("usuarios").path(user.getId()).path("tesoros").path("fecha").queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get();
+		 	   
+		 	   if(respuesta.getStatus() != 200) {
+		 		   JOptionPane.showMessageDialog(null,"No es posible consultar a este tesoro "+respuesta.getStatus()+" "+respuesta.getEntity());
+		 		   return;
+		 	   }
+		    	
+		 	  salida = target.path("v1").path("usuarios").path(user.getId()).path("tesoros").path("fecha").queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get(TesorosList.class);
+		   	
+		 	 Iterator<Tesoros> i  = salida.getL().iterator();
+			    
+			    String s = "";
+			    while (i.hasNext()) {
+			    	tesoroAx = i.next(); 
+			    	s = s + "Id: "+tesoroAx.getId()+", fecha: "+tesoroAx.getFecha_post()+", tamaño: "+tesoroAx.getTam()+", terreno: "+tesoroAx.getTipo_terreno() + "\n";
+			    }
+			    
+			    JOptionPane.showMessageDialog(null,s);
+		 	  
+		   break;
+	   
+	   case "3":
+		   
+		   break;
+		   
+		default: JOptionPane.showMessageDialog(null,"Opcion no valida");
+	   }
+   }
+   
 }

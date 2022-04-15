@@ -334,40 +334,18 @@ public class geoetsiinf {
 		    while (i.hasNext()) {
 		    	auxiliar = i.next();
 
-		    	s = s + auxiliar.getId_user()+": "+ auxiliar.getId() + "\n";
+		    	s = s + "El id del usuario: "+auxiliar.getId_user()+", el id del tesoro: "+ auxiliar.getId()+", fecha publicacion: "+auxiliar.getFecha_post()+", fecha encontrado: "+auxiliar.getFecha_encontrado()+", tamaño: "+auxiliar.getTam()+", pista"+auxiliar.getPista()+", dificultad: "+auxiliar.getDificultad() + "\n";
 		    	System.out.println(auxiliar.getId_user()+": "+ auxiliar.getId());
 		    }
 		    
 		    System.out.println(s);
 		     
-		    return Response.ok(s).build();
+		    if(s.equals(""))
+		    	return Response.ok("No se encuentraron tesoros").build();
+		    else
+		    	return Response.ok(s).build();
 		}
-
-		@DELETE
-		@Path("{id_user}/tesoros/{id_tesoro}")
-		public Response eliminarTesoro(@PathParam("id_user") String id,@PathParam("id_tesoro") String id_tesoro){
-			Usuarios usuario;
-			Tesoros tesoro;
-			
-			if (UsuariosDao.getInstance().getModel().containsKey(id) && TesorosDao.getInstance().getModel().containsKey(id_tesoro)) {
-				usuario = UsuariosDao.getInstance().getModel().get(id);
-				tesoro = TesorosDao.getInstance().getModel().get(id_tesoro);
-				
-				if(tesoro.getId_user().equals(usuario.getId())){
-					for (int i = 0; i < usuario.getTesoros_publicados().size() + 1; i++) {
-						if(usuario.getTesoros_publicados(i).getId().equals(tesoro.getId())) {
-							TesorosDao.getInstance().getModel().remove(id_tesoro); //Se encuentra y se elimina
-							System.out.println("La iteracion a eliminar es: "+i);
-							UsuariosDao.getInstance().getModel().get(id).getTesoros_publicados().remove(i); //Se encuentra y se elimina
-							return Response.ok().build();
-						}
-					}	
-				} else return Response.status(Response.Status.BAD_REQUEST).entity("No es el dueño del tesoro, no lo puede eliminar").build();
-		} else return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el user o el tesoro").build();
 	
-			return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el tesoro").build();
-	}
-
 		//Filtro con fecha
 		@GET
 		@Path("{id_user}/tesoros/fecha")
@@ -392,7 +370,7 @@ public class geoetsiinf {
 			while (i.hasNext()) {
 				auxiliar = i.next();
 
-				Date fecha =  (Date) new SimpleDateFormat("yyyy-mm-dd").parse(auxiliar.getFecha_encontrado());
+				Date fecha =  (Date) new SimpleDateFormat("yyyy-mm-dd").parse(auxiliar.getFecha_post());
 				
 				if(fecha.before(fechaMax)||fecha.equals(fechaMax)) {
 					if(auxiliar.getDificultad().equals(dif)&&auxiliar.getTipo_terreno().equals(terreno)&&auxiliar.getTam()==tam)
@@ -457,9 +435,32 @@ public class geoetsiinf {
 			TesorosList salida = new TesorosList(listaT);
 			return Response.ok(salida).build();
 					
-		}		
-
-}
+		}
+		
+		@DELETE
+		@Path("{id_user}/tesoros/{id_tesoro}")
+		public Response eliminarTesoro(@PathParam("id_user") String id,@PathParam("id_tesoro") String id_tesoro){
+			Usuarios usuario;
+			Tesoros tesoro;
+			
+			if (UsuariosDao.getInstance().getModel().containsKey(id) && TesorosDao.getInstance().getModel().containsKey(id_tesoro)) {
+				usuario = UsuariosDao.getInstance().getModel().get(id);
+				tesoro = TesorosDao.getInstance().getModel().get(id_tesoro);
+				
+				if(tesoro.getId_user().equals(usuario.getId())){
+					for (int i = 0; i < usuario.getTesoros_publicados().size() + 1; i++) {
+						if(usuario.getTesoros_publicados(i).getId().equals(tesoro.getId())) {
+							TesorosDao.getInstance().getModel().remove(id_tesoro); //Se encuentra y se elimina
+							System.out.println("La iteracion a eliminar es: "+i);
+							UsuariosDao.getInstance().getModel().get(id).getTesoros_publicados().remove(i); //Se encuentra y se elimina
+							return Response.ok().build();
+						}
+					}	
+				} else return Response.status(Response.Status.BAD_REQUEST).entity("No es el dueño del tesoro, no lo puede eliminar").build();
+		} else return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el user o el tesoro").build();
+	
+			return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el tesoro").build();
+	}
 
 	// Filtro con fecha
 	@GET
