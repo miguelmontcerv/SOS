@@ -92,6 +92,39 @@ public class geoetsiinf {
 		      return null;
 		  }
 	  }
+	
+	 //Actualizar la informacion de un usuario en especifico, si lo encuentra regresa una instancia de èl, sino null
+	 @Path("{id_usuario}")
+	  @PUT
+	  @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	  public Usuarios updateUsuario(@PathParam("id_usuario") String id, Usuarios userRequest) {
+		 Response res;
+		 
+		  Usuarios usuario;
+		  if(UsuariosDao.getInstance().getModel().containsKey(id)) {
+			  usuario = UsuariosDao.getInstance().getModel().get(id);
+			  
+			  if(!userRequest.getId().equals(""))
+				  UsuariosDao.getInstance().getModel().get(id).setId(userRequest.getId());
+			  if(!userRequest.getNombre_completo().equals(""))
+				  UsuariosDao.getInstance().getModel().get(id).setNombre_completo(userRequest.getNombre_completo());
+			  if(!userRequest.getCorreo().equals(""))
+				  UsuariosDao.getInstance().getModel().get(id).setCorreo(userRequest.getCorreo());
+			  if(userRequest.getEdad() != 0)
+				  UsuariosDao.getInstance().getModel().get(id).setEdad(userRequest.getEdad());
+			  if(!userRequest.getLocalidad().equals(""))
+				  UsuariosDao.getInstance().getModel().get(id).setLocalidad(userRequest.getLocalidad());
+			  
+		      res = Response.ok().build();
+		      
+		      return usuario;
+		  }  else {
+			  //throw new RuntimeException("Get: Tarea con id " + id +  " no encontrada");
+		      res = Response.status(Response.Status.NOT_FOUND).build();
+		      return null;
+		  }
+	  }
+	 
 	 
 	//Agregar a un usuario, el xml se le envia a travez del body
 	 @POST
@@ -461,6 +494,7 @@ public class geoetsiinf {
 	
 			return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el tesoro").build();
 	}
+}
 
 	// Filtro con fecha
 	@GET

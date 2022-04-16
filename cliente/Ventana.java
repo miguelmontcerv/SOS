@@ -24,7 +24,7 @@ public class Ventana extends JFrame{
     //private Scanner in = new Scanner(System.in);
     JPanel panel1, panel2, panel3, panel4;
     
-    JButton button1, button2, button3, button4, button5, button6, button7, button8, button9, button10, button11, button12,button13,button14;
+    JButton button1, button2, button3, button4, button5, button6, button7, button8, button9, button10, button11, button12,button13,button14, button15;
     
     JTextArea areaTexto, areaTexto2;
     
@@ -174,6 +174,14 @@ public class Ventana extends JFrame{
         button14.setBackground(new Color(29,35,57));
         button14.setForeground(Color.white);
         
+        button15 = new JButton("Actualizar User");
+        button15.setFocusPainted(false);
+        button15.setMargin(new Insets(0, 0, 0, 0));        
+        button15.setBorderPainted(false);
+        button15.setOpaque(true);
+        button15.setBackground(new Color(29,35,57));
+        button15.setForeground(Color.white);
+        
         
       //Areas para registros de historial
 
@@ -245,6 +253,7 @@ public class Ventana extends JFrame{
         button12.setBounds(0,390,260,30);
         button13.setBounds(0,420,260,30);
         button14.setBounds(0,450,260,30);
+        button15.setBounds(0,480,260,30);
         
         
         label1.setBounds(20,10,100,50); //Posicionx, posiciony, tamaño,tamaño        
@@ -273,6 +282,7 @@ public class Ventana extends JFrame{
         panel1.add(button12);
         panel1.add(button13);
         panel1.add(button14);
+        panel1.add(button15);
         
         panel2.add(areaTexto);        
         panel3.add(areaTexto2);
@@ -351,6 +361,9 @@ public class Ventana extends JFrame{
     	        if(btn1.getText() == "Tesoros Cercanos a ..."){
     	        	System.out.println(btn1.getText());
     	        }
+    	        if(btn1.getText() == "Actualizar User"){
+    	        	actualizarUser();
+    	        }
     	    }
     	};
     	
@@ -368,6 +381,7 @@ public class Ventana extends JFrame{
     	button12.addActionListener(oyente);
     	button13.addActionListener(oyente);
     	button14.addActionListener(oyente);
+    	button15.addActionListener(oyente);
     	
     }
 
@@ -626,6 +640,40 @@ public class Ventana extends JFrame{
 		   
 		default: JOptionPane.showMessageDialog(null,"Opcion no valida");
 	   }
+   }
+   
+   public void actualizarUser() {
+	   String info = "";
+	   Usuarios user_temp = target.path("v1").path("usuarios").path(user.getId()).request().accept(MediaType.APPLICATION_XML).get(Usuarios.class);
+   	
+   	if(user_temp != null){
+   		info = info + "El id es: " +user_temp.getId()+", el nombre de usuario es: "+user_temp.getUsuario()
+   		+", su nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
+   		", su edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad() + "\nSe le pediran todos los campos nuevamente, si quiere dejarlos con el valor actual, solo no escriba nada";
+   	
+   		JOptionPane.showMessageDialog(null,info);
+   		
+   		user_temp.setId(JOptionPane.showInputDialog(null,"Ingresa el id del usuario: "));
+   		user_temp.setNombre_completo(JOptionPane.showInputDialog(null,"Ingresa el nombre completo del usuario: "));
+   		user_temp.setCorreo(JOptionPane.showInputDialog(null,"Ingresa el correo del usuario: "));
+   		user_temp.setEdad(Integer.parseInt(JOptionPane.showInputDialog(null,"Ingresa la edad del usuario: ")));
+   		user_temp.setLocalidad(JOptionPane.showInputDialog(null,"Ingresa la localidad del usuario: "));
+   		
+   		Response respu = target.path("v1").path("usuarios").path(user.getId()).request().accept(MediaType.APPLICATION_XML).put(Entity.xml(user_temp),Response.class);;
+   		
+   		if(respu.getStatus() == 200) {
+   			info = "El id es: " +user_temp.getId()+", el nombre de usuario es: "+user_temp.getUsuario()
+   	   		+", su nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
+   	   		", su edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad();
+   			
+   			JOptionPane.showMessageDialog(null,info);
+   			
+   		} else if(respu.getStatus() == 404) {
+   			JOptionPane.showMessageDialog(null,"El usuario no se encontro");
+   		}
+   		
+   	}
+   	else JOptionPane.showMessageDialog(null,"El usuario no fue encontrado");
    }
    
 }
