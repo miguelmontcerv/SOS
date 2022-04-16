@@ -174,7 +174,7 @@ public class Ventana extends JFrame{
         button14.setBackground(new Color(29,35,57));
         button14.setForeground(Color.white);
         
-        button15 = new JButton("Actualizar User");
+        button15 = new JButton("Actualizar Tesoro");
         button15.setFocusPainted(false);
         button15.setMargin(new Insets(0, 0, 0, 0));        
         button15.setBorderPainted(false);
@@ -329,10 +329,10 @@ public class Ventana extends JFrame{
     	        	consultarPerfil();
     	        }
     	        if(btn1.getText() == "Actualizar Informacion"){
-    	        	System.out.println(btn1.getText());     
+    	        	actualizarUser();  
     	        }
     	        if(btn1.getText() == "Eliminar Cuenta"){
-    	        	System.out.println(btn1.getText());
+    	        	eliminarCuenta();
     	        }
     	        if(btn1.getText() == "Listado de Usuarios"){                                        
     	        	listaUsuarios();
@@ -361,8 +361,8 @@ public class Ventana extends JFrame{
     	        if(btn1.getText() == "Tesoros Cercanos a ..."){
     	        	System.out.println(btn1.getText());
     	        }
-    	        if(btn1.getText() == "Actualizar User"){
-    	        	actualizarUser();
+    	        if(btn1.getText() == "Actualizar Tesoro"){
+    	        	actualizarTesoro();
     	        }
     	    }
     	};
@@ -674,6 +674,59 @@ public class Ventana extends JFrame{
    		
    	}
    	else JOptionPane.showMessageDialog(null,"El usuario no fue encontrado");
+   }
+   
+   public void eliminarCuenta() {
+	   Response respu = target.path("v1").path("usuarios").path(user.getId()).request().delete();
+	  
+	   if(respu.getStatus() == 200) {
+		   JOptionPane.showMessageDialog(null,"Ha eliminado su cuenta, inicie sesion nuevamente con una cuenta distinta o cree un nuevo usuario");
+	   }else if(respu.getStatus() == 404) {
+  			JOptionPane.showMessageDialog(null,"El usuario no se encontro");
+  		}
+   }
+   
+   public void actualizarTesoro() {
+	   String info = "";
+	   
+	   String id_tesoro = JOptionPane.showInputDialog(null,"Ingresa el id del tesoro que desea eliminar");
+	   
+	   Tesoros tesoro_temp = target.path("v1").path("usuarios").path("tesoros").queryParam("id_tesoro", id_tesoro).request().accept(MediaType.APPLICATION_XML).get(Tesoros.class);
+   	
+   	if(tesoro_temp != null){
+   		info = info + "El id es: " +tesoro_temp.getId()+", el nombre de usuario que lo publico es: "+ tesoro_temp.getId_user()
+   		+ ", la pista es: "+ tesoro_temp.getPista() + ", las coordenadas en x, y son: ("+tesoro_temp.getCoor_x()+","+tesoro_temp.getCoor_y()+"), "+
+   		"su estado es: "+tesoro_temp.getEstado()+", su dificultad es: "+tesoro_temp.getDificultad()+", su tamaño es:"+tesoro_temp.getTam()+" y el tipo de terreno es: "+tesoro_temp.getTipo_terreno()
+   		+ "\nSe le pediran todos los campos nuevamente, si quiere dejarlos con el valor actual, solo no escriba nada";
+   		
+   		JOptionPane.showMessageDialog(null,info);
+   		
+   		tesoro_temp.setFecha_update("2022-11-11");
+   		
+   		tesoro_temp.setPista(JOptionPane.showInputDialog(null,"Ingresa la pista del tesoro: "));
+   		tesoro_temp.setCoor_x(Float.parseFloat(JOptionPane.showInputDialog(null,"Ingresa la coordenada en x del tesoro: ")));
+   		tesoro_temp.setCoor_y(Float.parseFloat(JOptionPane.showInputDialog(null,"Ingresa la coordenada en y del tesoro: ")));
+   		tesoro_temp.setEstado(JOptionPane.showInputDialog(null,"Ingresa el estado del tesoro: "));
+   		tesoro_temp.setDificultad(JOptionPane.showInputDialog(null,"Ingresa la dificultad del tesoro: "));
+   		tesoro_temp.setTipo_terreno(JOptionPane.showInputDialog(null,"Ingresa el tipo de terreno del tesoro: "));
+   		tesoro_temp.setTam(Integer.parseInt(JOptionPane.showInputDialog(null,"Ingresa el tamaño del tesoro: ")));
+   		
+   		Response respu = target.path("v1").path("usuarios").path("tesoros").path(id_tesoro).request().accept(MediaType.APPLICATION_XML).put(Entity.xml(tesoro_temp),Response.class);
+   		
+   		if(respu.getStatus() == 200) {
+   			
+   			info = "El id es: " +tesoro_temp.getId()+", el nombre de usuario que lo publico es: "+ tesoro_temp.getId_user()
+   	   		+ ", la pista es: "+ tesoro_temp.getPista() + ", las coordenadas en x, y son: ("+tesoro_temp.getCoor_x()+","+tesoro_temp.getCoor_y()+"), "+
+   	   		"su estado es: "+tesoro_temp.getEstado()+", su dificultad es: "+tesoro_temp.getDificultad()+", su tamaño es:"+tesoro_temp.getTam()+" y el tipo de terreno es: "+tesoro_temp.getTipo_terreno();
+   			
+   			JOptionPane.showMessageDialog(null,info);
+   			
+   		} else if(respu.getStatus() == 404) {
+   			JOptionPane.showMessageDialog(null,"El Tesoro no se encontro");
+   		}
+   		
+   	}
+   	else JOptionPane.showMessageDialog(null,"El tesoro no fue encontrado");
    }
    
 }

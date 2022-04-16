@@ -94,9 +94,9 @@ public class geoetsiinf {
 	  }
 	
 	 //Actualizar la informacion de un usuario en especifico, si lo encuentra regresa una instancia de èl, sino null
+	 @PUT
 	 @Path("{id_usuario}")
-	  @PUT
-	  @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	  public Usuarios updateUsuario(@PathParam("id_usuario") String id, Usuarios userRequest) {
 		 Response res;
 		 
@@ -116,6 +116,8 @@ public class geoetsiinf {
 				  UsuariosDao.getInstance().getModel().get(id).setLocalidad(userRequest.getLocalidad());
 			  
 		      res = Response.ok().build();
+		      
+		      usuario = UsuariosDao.getInstance().getModel().get(id);
 		      
 		      return usuario;
 		  }  else {
@@ -354,11 +356,11 @@ public class geoetsiinf {
 		@GET
 		@Path("tesoros")
 		@Consumes(MediaType.APPLICATION_XML)
-		public Response listaTesoros(){
+		public Response listaTesoros(@QueryParam("id_tesoro") String id){
 			List<Tesoros> tesoros = new ArrayList<Tesoros>();
 		    tesoros.addAll(TesorosDao.getInstance().getModel().values());
 		    
-		    Tesoros auxiliar;
+		    Tesoros auxiliar, retorno = null;
 		    TesorosList lista = new TesorosList(tesoros);
 		    
 		    Iterator<Tesoros> i  = lista.getL().iterator();
@@ -368,10 +370,13 @@ public class geoetsiinf {
 		    	auxiliar = i.next();
 
 		    	s = s + "El id del usuario: "+auxiliar.getId_user()+", el id del tesoro: "+ auxiliar.getId()+", fecha publicacion: "+auxiliar.getFecha_post()+", fecha encontrado: "+auxiliar.getFecha_encontrado()+", tamaño: "+auxiliar.getTam()+", pista"+auxiliar.getPista()+", dificultad: "+auxiliar.getDificultad() + "\n";
-		    	System.out.println(auxiliar.getId_user()+": "+ auxiliar.getId());
+		    	
+		    	//Con id
+		    	if(auxiliar.getId().equals(id))
+		    		retorno = auxiliar;
 		    }
 		    
-		    System.out.println(s);
+		    if(id != null) return Response.ok(retorno).build();
 		     
 		    if(s.equals(""))
 		    	return Response.ok("No se encuentraron tesoros").build();
@@ -494,7 +499,65 @@ public class geoetsiinf {
 	
 			return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el tesoro").build();
 	}
+
+		@DELETE
+		@Path("{id_user}")
+		public Response eliminarCuenta(@PathParam("id_user") String id){
+			
+			if (UsuariosDao.getInstance().getModel().containsKey(id)) {
+				
+				UsuariosDao.getInstance().getModel().remove(id); //Se encuentra y se elimina
+				return Response.ok().build();
+
+			} else return Response.status(Response.Status.NOT_FOUND).entity("No se encontro el user o el tesoro").build();
+	}
+
+		//Actualizar la informacion de un usuario en especifico, si lo encuentra regresa una instancia de èl, sino null
+	@PUT
+	@Path("tesoros/{id_tesoro}")
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+		  public Tesoros updateTesoro(@PathParam("id_tesoro") String id, Tesoros userRequest) {
+			 Response res;
+			 
+			  Tesoros tesoro;
+			  
+			  System.out.println("Se buscara el tesoro :" +id);
+			  
+			  if(TesorosDao.getInstance().getModel().containsKey(id)) {
+				  System.out.println("Se encontro el tesoro :" +id);
+				  tesoro = TesorosDao.getInstance().getModel().get(id);
+				  
+				  if(!userRequest.getFecha_update().equals(""))
+					  TesorosDao.getInstance().getModel().get(id).setFecha_update(userRequest.getFecha_update());
+				  if(userRequest.getCoor_x() != 0)
+					  TesorosDao.getInstance().getModel().get(id).setCoor_x(userRequest.getCoor_x());
+				  if(userRequest.getCoor_y() != 0)
+					  TesorosDao.getInstance().getModel().get(id).setCoor_y(userRequest.getCoor_y());
+				  if(!userRequest.getEstado().equals(""))
+					  TesorosDao.getInstance().getModel().get(id).setEstado(userRequest.getEstado());
+				  if(!userRequest.getDificultad().equals(""))
+					  TesorosDao.getInstance().getModel().get(id).setDificultad(userRequest.getDificultad());
+				  if(!userRequest.getTipo_terreno().equals(""))
+					  TesorosDao.getInstance().getModel().get(id).setTipo_terreno(userRequest.getTipo_terreno());
+				  if(userRequest.getTam() != 0)
+					  TesorosDao.getInstance().getModel().get(id).setTam(userRequest.getTam());
+				  if(!userRequest.getPista().equals(""))
+					  TesorosDao.getInstance().getModel().get(id).setPista(userRequest.getPista());
+				  
+			      res = Response.ok().build();
+			      
+			      tesoro = TesorosDao.getInstance().getModel().get(id);
+			      
+			      return tesoro;
+			  }  else {
+				  System.out.println("No se encuentra el tesoro :" +id);
+			      res = Response.status(Response.Status.NOT_FOUND).build();
+			      return null;
+			  }
+		  }		
+		
 }
+
 
 	// Filtro con fecha
 	@GET
