@@ -47,10 +47,10 @@ public class geoetsiinf {
 	  Request request;
 	 
 	//Genera una lista de todos los usuario en la aplicacion
-		@GET
-		@Consumes(MediaType.TEXT_PLAIN)
-		public Response getListaUsuarios() {
-	    List<Usuarios> users = new ArrayList<Usuarios>();
+	@GET
+	@Consumes(MediaType.TEXT_PLAIN)
+	public Response getListaUsuarios() {
+		List<Usuarios> users = new ArrayList<Usuarios>();
 	    users.addAll(UsuariosDao.getInstance().getModel().values());
 	    
 	    UsuariosList lista = new UsuariosList(users);
@@ -63,7 +63,7 @@ public class geoetsiinf {
 	    }
 	     
 	    return Response.ok(s).build();
-	  }
+	}
 	 
 		//Metodo para obtener el path del proyecto
 		@Path("Path")
@@ -74,76 +74,75 @@ public class geoetsiinf {
 		 }
 	 
 	//Ver a un usuario en especifico, si lo encuentra regresa una instancia de él, sino regresa null
-	 @Path("{id_usuario}")
-	  @GET
-	  @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	  public Usuarios getUsuario(@PathParam("id_usuario") String id) {
-		 Response res;
+	@Path("{id_usuario}")
+	@GET
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	public Usuarios getUsuario(@PathParam("id_usuario") String id) {
+		Response res;
 		 
-		  Usuarios usuario;
-		  if(UsuariosDao.getInstance().getModel().containsKey(id)) {
-			  usuario = UsuariosDao.getInstance().getModel().get(id);
-		      res = Response.ok(usuario).build();
+		Usuarios usuario;
+		if(UsuariosDao.getInstance().getModel().containsKey(id)) {
+			usuario = UsuariosDao.getInstance().getModel().get(id);
+			res = Response.ok(usuario).build();
 		      
-		      return usuario;
-		  }  else {
-			  //throw new RuntimeException("Get: Tarea con id " + id +  " no encontrada");
-		      res = Response.status(Response.Status.NOT_FOUND).build();
-		      return null;
-		  }
-	  }
+			return usuario;
+		
+		}  else {
+		    	res = Response.status(Response.Status.NOT_FOUND).build();
+				return null;
+		  	}
+	}
 	
 	 //Actualizar la informacion de un usuario en especifico, si lo encuentra regresa una instancia de èl, sino null
-	 @PUT
-	 @Path("{id_usuario}")
-	 @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	  public Usuarios updateUsuario(@PathParam("id_usuario") String id, Usuarios userRequest) {
-		 Response res;
+	@PUT
+	@Path("{id_usuario}")
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	public Usuarios updateUsuario(@PathParam("id_usuario") String id, Usuarios userRequest) {
+		Response res;
 		 
-		  Usuarios usuario;
-		  if(UsuariosDao.getInstance().getModel().containsKey(id)) {
-			  usuario = UsuariosDao.getInstance().getModel().get(id);
+		Usuarios usuario;
+		if(UsuariosDao.getInstance().getModel().containsKey(id)) {
+			usuario = UsuariosDao.getInstance().getModel().get(id);
 			  
-			  if(!userRequest.getId().equals(""))
-				  UsuariosDao.getInstance().getModel().get(id).setId(userRequest.getId());
-			  if(!userRequest.getNombre_completo().equals(""))
-				  UsuariosDao.getInstance().getModel().get(id).setNombre_completo(userRequest.getNombre_completo());
-			  if(!userRequest.getCorreo().equals(""))
-				  UsuariosDao.getInstance().getModel().get(id).setCorreo(userRequest.getCorreo());
-			  if(userRequest.getEdad() != 0)
-				  UsuariosDao.getInstance().getModel().get(id).setEdad(userRequest.getEdad());
-			  if(!userRequest.getLocalidad().equals(""))
-				  UsuariosDao.getInstance().getModel().get(id).setLocalidad(userRequest.getLocalidad());
+			if(!userRequest.getId().equals(""))
+				UsuariosDao.getInstance().getModel().get(id).setId(userRequest.getId());
+			if(!userRequest.getNombre_completo().equals(""))
+				UsuariosDao.getInstance().getModel().get(id).setNombre_completo(userRequest.getNombre_completo());
+			if(!userRequest.getCorreo().equals(""))
+				UsuariosDao.getInstance().getModel().get(id).setCorreo(userRequest.getCorreo());
+			if(userRequest.getEdad() != 0)
+				UsuariosDao.getInstance().getModel().get(id).setEdad(userRequest.getEdad());
+			if(!userRequest.getLocalidad().equals(""))
+				UsuariosDao.getInstance().getModel().get(id).setLocalidad(userRequest.getLocalidad());
 			  
-		      res = Response.ok().build();
+		    res = Response.ok().build();
 		      
-		      usuario = UsuariosDao.getInstance().getModel().get(id);
+		    usuario = UsuariosDao.getInstance().getModel().get(id);
 		      
-		      return usuario;
-		  }  else {
-			  //throw new RuntimeException("Get: Tarea con id " + id +  " no encontrada");
-		      res = Response.status(Response.Status.NOT_FOUND).build();
-		      return null;
-		  }
-	  }
+		    return usuario;
+		}  else {
+		    res = Response.status(Response.Status.NOT_FOUND).build();
+		    return null;
+		}
+	}
 	 
 	 
 	//Agregar a un usuario, el xml se le envia a travez del body
-	 @POST
-	 @Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML,MediaType.TEXT_XML})
-	 public Response postUsuario(Usuarios userRequest) {
-		 String res;
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML,MediaType.TEXT_XML})
+	public Response postUsuario(Usuarios userRequest) {
+		String res;
 		 
-		 if(userRequest == null) {
-			 res = "El body esta vacio"; 
-			 return Response.noContent().entity(res).build();
-		 }
-		 else {
-			 UsuariosDao.getInstance().getModel().put(userRequest.getId(), userRequest);
-			 res = "Se ha creado el user " + userRequest.getId();
-			 return  Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
-		 }
-	 }
+		if(userRequest == null) {
+			res = "El body esta vacio"; 
+			return Response.noContent().entity(res).build();
+		}
+		else {
+			UsuariosDao.getInstance().getModel().put(userRequest.getId(), userRequest);
+			res = "Se ha creado el user " + userRequest.getId();
+			return  Response.status(Response.Status.CREATED).entity(res).header("Location",uriInfo.getAbsolutePath().toString()).build();
+		}
+	}
 	 
 	//Se agrega un tesoro encontrado al usuario que se marca en el Path, la info del tesoro es mandada por el body
 	 @POST
@@ -203,8 +202,8 @@ public class geoetsiinf {
 			// throw new RuntimeException("Get: Tarea con id " + id + " no encontrada");
 			return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
 		}
-
 	}
+	
 	
 	 
 	//Agregar un amigo a un usuario, hace el cambio en ambas instancias
@@ -384,11 +383,11 @@ public class geoetsiinf {
 		    	return Response.ok(s).build();
 		}
 	
-		//Filtro con fecha
+		//Lista de tesoros publicados con fecha
 		@GET
-		@Path("{id_user}/tesoros/fecha")
+		@Path("{id_user}/tesoros_publicados")
 		@Produces(MediaType.APPLICATION_XML)
-		public Response listaTesorosFecha(@PathParam("id_user") String id, @QueryParam("fecha_lim") String fechaM,
+		public Response listaTesorosEncontrados(@PathParam("id_user") String id, @QueryParam("fecha_lim") String fechaM,
 				@QueryParam("pag") int pag, @QueryParam("lim") int lim, @QueryParam("dif") String dif,
 				@QueryParam("tam") int tam, @QueryParam("terreno") String terreno) throws Exception  {
 			
@@ -432,14 +431,15 @@ public class geoetsiinf {
 					
 		}
 
-		//Filtro sin fecha
+		//Lista de tesoros publicados con fecha
 		@GET
-		@Path("{id_user}/tesoros")
+		@Path("{id_user}/tesoros_publicados")
 		@Produces(MediaType.APPLICATION_XML)
-		public Response listaTesoros(@PathParam("id_user") String id,
+		public Response listaTesorosPublicados(@PathParam("id_user") String id, @QueryParam("fecha_lim") String fechaM,
 				@QueryParam("pag") int pag, @QueryParam("lim") int lim, @QueryParam("dif") String dif,
 				@QueryParam("tam") int tam, @QueryParam("terreno") String terreno) throws Exception  {
 			
+			Date fechaMax = (Date) new SimpleDateFormat("yyyy-mm-dd").parse(fechaM);
 			List<Tesoros> tesoros = new ArrayList<Tesoros>();
 			tesoros.addAll(TesorosDao.getInstance().getModel().values());
 			Tesoros auxiliar;
@@ -455,6 +455,9 @@ public class geoetsiinf {
 			while (i.hasNext()) {
 				auxiliar = i.next();
 
+				Date fecha =  (Date) new SimpleDateFormat("yyyy-mm-dd").parse(auxiliar.getFecha_post());
+				
+				if(fecha.before(fechaMax)||fecha.equals(fechaMax)) {
 					if(auxiliar.getDificultad().equals(dif)&&auxiliar.getTipo_terreno().equals(terreno)&&auxiliar.getTam()==tam)
 						if(auxiliar.getId_user().equals(id)) {
 							if(contador >= pag && contSolicitado <= lim) {
@@ -464,6 +467,55 @@ public class geoetsiinf {
 							}
 						}
 							
+				}
+			contador++;
+			}
+			
+			if(listaT.size()<=0)
+				return Response.status(Response.Status.NOT_FOUND).entity("No se encontro tesoros en el usuario "+id).build();
+			
+			TesorosList salida = new TesorosList(listaT);
+			return Response.ok(salida).build();
+					
+		}
+
+		//Lista de tesoros encontrados con fecha
+		@GET
+		@Path("{id_user}/tesoros_encontrados")
+		@Produces(MediaType.APPLICATION_XML)
+		public Response listaTesorosEncontrados(@PathParam("id_user") String id, @QueryParam("fecha_lim") String fechaM,
+				@QueryParam("pag") int pag, @QueryParam("lim") int lim, @QueryParam("dif") String dif,
+				@QueryParam("tam") int tam, @QueryParam("terreno") String terreno) throws Exception  {
+			
+			Date fechaMax = (Date) new SimpleDateFormat("yyyy-mm-dd").parse(fechaM);
+			List<Tesoros> tesoros = new ArrayList<Tesoros>();
+			tesoros.addAll(TesorosDao.getInstance().getModel().values());
+			Tesoros auxiliar;
+			TesorosList lista = new TesorosList(tesoros);
+			ArrayList<Tesoros> listaT = new ArrayList<Tesoros>();
+			Iterator<Tesoros> i  = lista.getL().iterator();
+			int contador = 1, contSolicitado = pag;
+			
+			if(pag> tesoros.size() || lim > tesoros.size() || pag < 1) { //Verificamos que la paginacion sea correcta
+				return Response.status(Response.Status.BAD_REQUEST).entity("La paginacion o el limite esta incorrecto, verifica").build();	
+			}
+		
+			while (i.hasNext()) {
+				auxiliar = i.next();
+
+				Date fecha =  (Date) new SimpleDateFormat("yyyy-mm-dd").parse(auxiliar.getFecha_post());
+				
+				if(fecha.before(fechaMax)||fecha.equals(fechaMax)) {
+					if(auxiliar.getDificultad().equals(dif)&&auxiliar.getTipo_terreno().equals(terreno)&&auxiliar.getTam()==tam)
+						if(auxiliar.getId_encontrado().equals(id)) {
+							if(contador >= pag && contSolicitado <= lim) {
+								listaT.add(auxiliar);
+								System.out.println(contador +">="+ pag +"&&"+ contador +"<="+lim);
+								contSolicitado++;
+							}
+						}
+							
+				}
 			contador++;
 			}
 			
@@ -475,6 +527,7 @@ public class geoetsiinf {
 					
 		}
 		
+		//Eliminar un tesoro publicado
 		@DELETE
 		@Path("{id_user}/tesoros/{id_tesoro}")
 		public Response eliminarTesoro(@PathParam("id_user") String id,@PathParam("id_tesoro") String id_tesoro){
@@ -495,24 +548,24 @@ public class geoetsiinf {
 						}
 					}	
 				} else return Response.status(Response.Status.BAD_REQUEST).entity("No es el dueño del tesoro, no lo puede eliminar").build();
-		} else return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el user o el tesoro").build();
+		} else return Response.status(Response.Status.NOT_FOUND).entity("No se encontro el user o el tesoro").build();
 	
-			return Response.status(Response.Status.BAD_REQUEST).entity("No se encontro el tesoro").build();
+			return Response.status(Response.Status.NOT_FOUND).entity("No se encontro el tesoro").build();
 	}
 
-		@DELETE
-		@Path("{id_user}")
-		public Response eliminarCuenta(@PathParam("id_user") String id){
-			
-			if (UsuariosDao.getInstance().getModel().containsKey(id)) {
-				
-				UsuariosDao.getInstance().getModel().remove(id); //Se encuentra y se elimina
-				return Response.ok().build();
+	//Eliminar la cuenta del usuario
+	@DELETE
+	@Path("{id_user}")
+	public Response eliminarCuenta(@PathParam("id_user") String id){
+		if (UsuariosDao.getInstance().getModel().containsKey(id)) {			
+			UsuariosDao.getInstance().getModel().remove(id); //Se encuentra y se elimina
+			return Response.ok().build();
 
-			} else return Response.status(Response.Status.NOT_FOUND).entity("No se encontro el user o el tesoro").build();
+		} else 
+			return Response.status(Response.Status.NOT_FOUND).entity("No se encontro el user o el tesoro").build();
 	}
 
-		//Actualizar la informacion de un usuario en especifico, si lo encuentra regresa una instancia de èl, sino null
+	//Actualizar la informacion de un tesoro, si lo encuentra regresa una intancia de el, en el caso contrario, regresa null
 	@PUT
 	@Path("tesoros/{id_tesoro}")
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

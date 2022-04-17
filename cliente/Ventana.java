@@ -347,7 +347,7 @@ public class Ventana extends JFrame{
     	        	consultarTesoros();
     	        }
     	        if(btn1.getText() == "Buscar Tesoro!"){
-    	        	System.out.println(btn1.getText());
+    	        	agregarTesoroEncontrado();
     	        }
     	        if(btn1.getText() == "Agregar Amigos"){
     	        	agregarAmigo();
@@ -449,8 +449,8 @@ public class Ventana extends JFrame{
     	
     	if(res.charAt(0) =='s') {
     		info = info + "El id es: " +user.getId()+", el nombre de usuario es: "+user.getUsuario()
-    		+", su nombre completo es: "+user.getNombre_completo()+", su correo es: "+user.getCorreo()+
-    		", su edad es: "+user.getEdad()+" y su localidad es: "+user.getLocalidad();
+    		+"\nSu nombre completo es: "+user.getNombre_completo()+", su correo es: "+user.getCorreo()+
+    		"\nSu edad es: "+user.getEdad()+" y su localidad es: "+user.getLocalidad();
     		
     		JOptionPane.showMessageDialog(null,info);
     	}
@@ -460,8 +460,8 @@ public class Ventana extends JFrame{
         	
         	if(user_temp != null){
         		info = info + "El id es: " +user_temp.getId()+", el nombre de usuario es: "+user_temp.getUsuario()
-        		+", su nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
-        		", su edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad();
+        		+"\nSu nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
+        		"\nSu edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad();
         	
         		JOptionPane.showMessageDialog(null,info);
         	}
@@ -596,6 +596,9 @@ public class Ventana extends JFrame{
 	   Tesoros tesoroAx;
 	   TesorosList salida;
 	   
+	   Iterator<Tesoros> i;
+	   String s;
+	   
 	   String opc = JOptionPane.showInputDialog(null,"Ingrese una de las siguientes opciones: \n1.Todos los tesoros\n2.Mis tesoros publicados\n3.Mis tesoros encontrados");
 	   switch(opc) {
 	   case "1":
@@ -613,18 +616,18 @@ public class Ventana extends JFrame{
 		   		tam = JOptionPane.showInputDialog(null,"Ingresa el tamanio del tesoro: ");
 		   		terreno = JOptionPane.showInputDialog(null,"Ingresa el terreno del tesoro: ");
 		   		
-		   		respuesta = target.path("v1").path("usuarios").path(user.getId()).path("tesoros").path("fecha").queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get();
+		   		respuesta = target.path("v1").path("usuarios").path(user.getId()).path("tesoros_publicados").queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get();
 		 	   
 		 	   if(respuesta.getStatus() != 200) {
 		 		   JOptionPane.showMessageDialog(null,"No es posible consultar a este tesoro "+respuesta.getStatus()+" "+respuesta.getEntity());
 		 		   return;
 		 	   }
 		    	
-		 	  salida = target.path("v1").path("usuarios").path(user.getId()).path("tesoros").path("fecha").queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get(TesorosList.class);
+		 	  salida =  target.path("v1").path("usuarios").path(user.getId()).path("tesoros_publicados").queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get(TesorosList.class);
 		   	
-		 	 Iterator<Tesoros> i  = salida.getL().iterator();
+		 	 i  = salida.getL().iterator();
 			    
-			    String s = "";
+			    s = "";
 			    while (i.hasNext()) {
 			    	tesoroAx = i.next(); 
 			    	s = s + "Id: "+tesoroAx.getId()+", fecha: "+tesoroAx.getFecha_post()+", tamaño: "+tesoroAx.getTam()+", terreno: "+tesoroAx.getTipo_terreno() + "\n";
@@ -635,7 +638,31 @@ public class Ventana extends JFrame{
 		   break;
 	   
 	   case "3":
-		   
+		   fecha = JOptionPane.showInputDialog(null,"Ingresa la fecha limite de la busqueda en el siguiente formato yyyy-mm-dd: ");
+	   		pag = JOptionPane.showInputDialog(null,"Ingresa el tesoro a partir del cual se iniciara la busqueda: ");
+	   		lim = JOptionPane.showInputDialog(null,"Ingresa el tesoro a partir del cual se terminara la busqueda: ");
+	   		dif = JOptionPane.showInputDialog(null,"Ingresa la dificulta del tesoro: ");
+	   		tam = JOptionPane.showInputDialog(null,"Ingresa el tamanio del tesoro: ");
+	   		terreno = JOptionPane.showInputDialog(null,"Ingresa el terreno del tesoro: ");
+	   		
+	   		respuesta = target.path("v1").path("usuarios").path(user.getId()).path("tesoros_encontrados").queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get();
+	 	   
+	 	   if(respuesta.getStatus() != 200) {
+	 		   JOptionPane.showMessageDialog(null,"No es posible consultar a este tesoro "+respuesta.getStatus()+" "+respuesta.getEntity());
+	 		   return;
+	 	   }
+	    	
+	 	  salida = target.path("v1").path("usuarios").path(user.getId()).path("tesoros_encontrados").queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get(TesorosList.class);
+	   	
+	 	  i  = salida.getL().iterator();
+		    
+		  s = "";
+		    while (i.hasNext()) {
+		    	tesoroAx = i.next(); 
+		    	s = s + "Id: "+tesoroAx.getId()+", fecha: "+tesoroAx.getFecha_post()+", tamaño: "+tesoroAx.getTam()+", terreno: "+tesoroAx.getTipo_terreno() + "\n";
+		    }
+		    
+		    JOptionPane.showMessageDialog(null,s);
 		   break;
 		   
 		default: JOptionPane.showMessageDialog(null,"Opcion no valida");
@@ -648,8 +675,8 @@ public class Ventana extends JFrame{
    	
    	if(user_temp != null){
    		info = info + "El id es: " +user_temp.getId()+", el nombre de usuario es: "+user_temp.getUsuario()
-   		+", su nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
-   		", su edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad() + "\nSe le pediran todos los campos nuevamente, si quiere dejarlos con el valor actual, solo no escriba nada";
+   		+"\nSu nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
+   		"\nSu edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad() + "\n\nSe le pediran todos los campos nuevamente, si quiere dejarlos con el valor actual, solo no escriba nada";
    	
    		JOptionPane.showMessageDialog(null,info);
    		
@@ -663,8 +690,8 @@ public class Ventana extends JFrame{
    		
    		if(respu.getStatus() == 200) {
    			info = "El id es: " +user_temp.getId()+", el nombre de usuario es: "+user_temp.getUsuario()
-   	   		+", su nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
-   	   		", su edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad();
+   	   		+"\nSu nombre completo es: "+user_temp.getNombre_completo()+", su correo es: "+user_temp.getCorreo()+
+   	   		"\nSu edad es: "+user_temp.getEdad()+" y su localidad es: "+user_temp.getLocalidad() + "\n\nSe le pediran todos los campos nuevamente, si quiere dejarlos con el valor actual, solo no escriba nada";
    			
    			JOptionPane.showMessageDialog(null,info);
    			
@@ -695,9 +722,9 @@ public class Ventana extends JFrame{
    	
    	if(tesoro_temp != null){
    		info = info + "El id es: " +tesoro_temp.getId()+", el nombre de usuario que lo publico es: "+ tesoro_temp.getId_user()
-   		+ ", la pista es: "+ tesoro_temp.getPista() + ", las coordenadas en x, y son: ("+tesoro_temp.getCoor_x()+","+tesoro_temp.getCoor_y()+"), "+
-   		"su estado es: "+tesoro_temp.getEstado()+", su dificultad es: "+tesoro_temp.getDificultad()+", su tamaño es:"+tesoro_temp.getTam()+" y el tipo de terreno es: "+tesoro_temp.getTipo_terreno()
-   		+ "\nSe le pediran todos los campos nuevamente, si quiere dejarlos con el valor actual, solo no escriba nada";
+   		+ "\nLa pista es: "+ tesoro_temp.getPista() + ", las coordenadas en x, y son: ("+tesoro_temp.getCoor_x()+","+tesoro_temp.getCoor_y()+"), "+
+   		"\nSu estado es: "+tesoro_temp.getEstado()+", su dificultad es: "+tesoro_temp.getDificultad()+", su tamaño es:"+tesoro_temp.getTam()+" y el tipo de terreno es: "+tesoro_temp.getTipo_terreno()
+   		+ "\n\nSe le pediran todos los campos nuevamente, si quiere dejarlos con el valor actual, solo no escriba nada";
    		
    		JOptionPane.showMessageDialog(null,info);
    		
@@ -716,8 +743,8 @@ public class Ventana extends JFrame{
    		if(respu.getStatus() == 200) {
    			
    			info = "El id es: " +tesoro_temp.getId()+", el nombre de usuario que lo publico es: "+ tesoro_temp.getId_user()
-   	   		+ ", la pista es: "+ tesoro_temp.getPista() + ", las coordenadas en x, y son: ("+tesoro_temp.getCoor_x()+","+tesoro_temp.getCoor_y()+"), "+
-   	   		"su estado es: "+tesoro_temp.getEstado()+", su dificultad es: "+tesoro_temp.getDificultad()+", su tamaño es:"+tesoro_temp.getTam()+" y el tipo de terreno es: "+tesoro_temp.getTipo_terreno();
+   	   		+ "\nLa pista es: "+ tesoro_temp.getPista() + ", las coordenadas en x, y son: ("+tesoro_temp.getCoor_x()+","+tesoro_temp.getCoor_y()+"), "+
+   	   		"\nSu estado es: "+tesoro_temp.getEstado()+", su dificultad es: "+tesoro_temp.getDificultad()+", su tamaño es:"+tesoro_temp.getTam()+" y el tipo de terreno es: "+tesoro_temp.getTipo_terreno();
    			
    			JOptionPane.showMessageDialog(null,info);
    			
@@ -727,6 +754,28 @@ public class Ventana extends JFrame{
    		
    	}
    	else JOptionPane.showMessageDialog(null,"El tesoro no fue encontrado");
+   }
+   
+   public void agregarTesoroEncontrado() {
+	   String id_tesoro = JOptionPane.showInputDialog(null,"Ingresa el id del tesoro que deseas buscar");
+	   String s = "";
+	   
+	   Tesoros tesoro_temp = target.path("v1").path("usuarios").path(user.getId()).path("tesoros_encontrados").path(id_tesoro).request().accept(MediaType.APPLICATION_XML).post(null,Tesoros.class);
+ 	   
+	   
+ 	   
+ 	   if(tesoro_temp != null) {
+ 		   s = "El tesoro tiene la siguiente informacion:\n"  + "El id es: " +tesoro_temp.getId()+", el nombre de usuario que lo publico es: "+ tesoro_temp.getId_user()
+ 	   		+ "\nLa pista es: "+ tesoro_temp.getPista() + ", las coordenadas en x, y son: ("+tesoro_temp.getCoor_x()+","+tesoro_temp.getCoor_y()+"), "+
+ 	   		"\nSu estado es: "+tesoro_temp.getEstado()+", su dificultad es: "+tesoro_temp.getDificultad()+", su tamaño es:"+tesoro_temp.getTam()+" y el tipo de terreno es: "+tesoro_temp.getTipo_terreno()+
+ 	   		"\n\nLO HAS ENCONTRADO! Se agregara a tu historial de tesoros encontrados, felicidades!";
+ 		   
+ 		  JOptionPane.showMessageDialog(null,s);
+ 	   }
+ 	   else{
+		   JOptionPane.showMessageDialog(null,"No ha sido posible agregar el tesoro ya que no se encontro");
+		   areaTexto.append("No ha sido posible agregar el tesoro ya que no se encontro");
+	   }
    }
    
 }
