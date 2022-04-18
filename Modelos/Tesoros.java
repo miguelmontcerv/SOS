@@ -1,10 +1,9 @@
-package rest1;
+package Models;
+
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 //import javax.xml.bind.annotation.XmlTransient;
-
-
 
 
 @XmlRootElement()
@@ -18,12 +17,11 @@ public class Tesoros{
     private String fecha_post;
     private String fecha_update;
     private String fecha_encontrado;
-    private int id_encontrado;
+    private String id_encontrado;
     private String dificultad;
     private int tam;
     private String tipo_terreno;
 
- 
     @XmlElement(name="id_tesoro")
     public String getId() {
         return id;
@@ -84,8 +82,8 @@ public class Tesoros{
     public String getFecha_update() {
         return fecha_update;
     }
-    public void setFecha_update(String fecha_update) {
-        this.fecha_update = fecha_update;
+    public void setFecha_update(String fecha_upString) {
+        this.fecha_update = fecha_upString;
     }
     
     @XmlElement(name="fecha_encontrado")
@@ -97,10 +95,10 @@ public class Tesoros{
     }
     
     @XmlElement(name="id_encontrado")
-    public int getId_encontrado() {
+    public String getId_encontrado() {
         return id_encontrado;
     }
-    public void setId_encontrado(int id_encontrado) {
+    public void setId_encontrado(String id_encontrado) {
         this.id_encontrado = id_encontrado;
     }
 

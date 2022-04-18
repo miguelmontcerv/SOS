@@ -5,12 +5,14 @@ import Models.UsuariosList;
 import Models.TesorosList;
 import java.util.Iterator;
 import Models.Tesoros;
+import Models.distanciaTesoro;
 import Daos.UsuariosDao;
 import Daos.TesorosDao;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -64,6 +66,32 @@ public class geoetsiinf {
 	     
 	    return Response.ok(s).build();
 	  }
+	
+		@GET
+		@Path("f")
+		@Consumes(MediaType.TEXT_PLAIN)
+		public Response getListaUsuariosFiltrados(@QueryParam("nombre") String nombre) {
+			
+	    List<Usuarios> users = new ArrayList<Usuarios>();
+	    users.addAll(UsuariosDao.getInstance().getModel().values());
+	    Usuarios aux; 
+	    
+	    UsuariosList lista = new UsuariosList(users);
+	    
+	    Iterator<Usuarios> i  = lista.getL().iterator();
+	    
+	    String s = "";
+	    while (i.hasNext()) {
+	    	aux = i.next();
+	    	
+	    	if(aux.getUsuario().contains(nombre))
+	    		s = s + aux.getUsuario() + "\n";
+	    }
+	    if(s.equals(""))
+	    	return Response.status(Response.Status.NOT_FOUND).entity("No hay tesoros con "+nombre+" en el nombre de usuario").build();
+	    else return Response.ok(s).build();
+	  }
+		
 	 
 		//Metodo para obtener el path del proyecto
 		@Path("Path")
@@ -556,88 +584,52 @@ public class geoetsiinf {
 			      res = Response.status(Response.Status.NOT_FOUND).build();
 			      return null;
 			  }
-		  }		
-
-	// Filtro con fecha
-	@GET
-	@Path("/tesoros/cercaFe")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response listaTesorosCercaFecha(@QueryParam("coor_x") float X, @QueryParam("coor_y") float Y,
-			@QueryParam("fecha_lim") String fechaM, @QueryParam("pag") int pag, @QueryParam("lim") int lim,
-			@QueryParam("dif") String dif, @QueryParam("tam") int tam, @QueryParam("terreno") String terreno) {
-		try {
-			ArrayList<Tesoros> TesorosDisp = TesorosDao.getLista();
-			ArrayList<distanciaTesoro> aux = new ArrayList<distanciaTesoro>();
-			for (int i = 0; i < TesorosDisp.size(); i++) {
-				float a = TesorosDisp.get(i).getCoor_x() - X;
-				float b = TesorosDisp.get(i).getCoor_y() - Y;
-				distanciaTesoro salida = new distanciaTesoro(Math.sqrt((a * a) + (b * b)), TesorosDisp.get(i).getId());
-				aux.add(salida);
-			}
-			Collections.sort(aux);
-			Date fechaMax = (Date) new SimpleDateFormat("yyyy-mm-dd").parse(fechaM);
-			if (pag > aux.size()) {
-				return Response.status(Response.Status.BAD_REQUEST).build();
-			}
-			ArrayList<Tesoros> lista = new ArrayList<Tesoros>();
-			for (int i = pag - 1; i < aux.size() && lim - 1 > aux.size(); i++) {
-				Date fecha = (Date) new SimpleDateFormat("yyyy-mm-dd")
-						.parse(TesorosDao.getInstance().getModel().get(aux.get(i).getId()).getFecha_post());
-				if (fecha.before(fechaMax) || fecha.equals(fechaMax)) {
-					Tesoros tesoro = TesorosDao.getInstance().getModel().get(aux.get(i).getId());
-					if (tesoro.getDificultad().equals(dif) && tesoro.getTipo_terreno().equals(terreno)
-							&& tesoro.getTam() == tam)
-						lista.add(tesoro);
+		  }	
+	
+	// Filtro de tesoros cercanos a unas coordenadas con fecha
+		@GET
+		@Path("/tesoros/cerca_de")
+		@Produces(MediaType.APPLICATION_XML)
+		public Response listaTesorosCercaFecha(@QueryParam("coor_x") float X, @QueryParam("coor_y") float Y,
+				@QueryParam("fecha_lim") String fechaM, @QueryParam("pag") int pag, @QueryParam("lim") int lim,
+				@QueryParam("dif") String dif, @QueryParam("tam") int tam, @QueryParam("terreno") String terreno) {
+			try {
+				ArrayList<Tesoros> TesorosDisp = TesorosDao.getLista();
+				ArrayList<distanciaTesoro> aux = new ArrayList<distanciaTesoro>();
+				for (int i = 0; i < TesorosDisp.size(); i++) {
+					float a = TesorosDisp.get(i).getCoor_x() - X;
+					float b = TesorosDisp.get(i).getCoor_y() - Y;
+					distanciaTesoro salida = new distanciaTesoro(Math.sqrt((a * a) + (b * b)), TesorosDisp.get(i).getId());
+					aux.add(salida);
 				}
+				
+				Collections.sort(aux);
+				Date fechaMax = (Date) new SimpleDateFormat("yyyy-mm-dd").parse(fechaM);
+				if (pag > aux.size()) {
+					return Response.status(Response.Status.BAD_REQUEST).build();
+				}
+				ArrayList<Tesoros> lista = new ArrayList<Tesoros>();
+				
+				for (int i = pag - 1; i < aux.size() && lim - 1 > aux.size(); i++) {
+					Date fecha = (Date) new SimpleDateFormat("yyyy-mm-dd")
+							.parse(TesorosDao.getInstance().getModel().get(aux.get(i).getId()).getFecha_post());
+					if (fecha.before(fechaMax) || fecha.equals(fechaMax)) {
+						Tesoros tesoro = TesorosDao.getInstance().getModel().get(aux.get(i).getId());
+						if (tesoro.getDificultad().equals(dif) && tesoro.getTipo_terreno().equals(terreno)
+								&& tesoro.getTam() == tam)
+							lista.add(tesoro);
+					}
+				}
+				if (lista.size() <= 0)
+					return Response.status(Response.Status.NOT_FOUND).entity("No hay tesoros con esas caracteristicas: "+fechaM+" "+" "+pag+":"+lim+" "+dif+" "+tam+" "+terreno).build();
+				TesorosList salida = new TesorosList(lista);
+				return Response.ok(salida).build();
+			} catch (NumberFormatException e) {
+				return Response.status(Response.Status.BAD_REQUEST)
+						.entity("No se pudieron convertir los Ã­ndices a nÃºmeros").build();
+			} catch (ParseException e) {
+				return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo leer la fecha").build();
 			}
-			if (lista.size() <= 0)
-				return Response.status(Response.Status.NOT_FOUND).build();
-			TesorosList salida = new TesorosList(lista);
-			return Response.ok(salida).build();
-		} catch (NumberFormatException e) {
-			return Response.status(Response.Status.BAD_REQUEST)
-					.entity("No se pudieron convertir los Ã­ndices a nÃºmeros").build();
-		} catch (ParseException e) {
-			return Response.status(Response.Status.BAD_REQUEST).entity("No se pudo leer la fecha").build();
 		}
-	}
-
-	// Filtro sin fecha
-	@GET
-	@Path("/tesoros/cerca")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response listaTesorosCercaFecha(@QueryParam("coor_x") float X, @QueryParam("coor_y") float Y,
-			@QueryParam("pag") int pag, @QueryParam("lim") int lim, @QueryParam("dif") String dif,
-			@QueryParam("tam") int tam, @QueryParam("terreno") String terreno) {
-		try {
-			ArrayList<Tesoros> TesorosDisp = TesorosDao.getLista();
-			ArrayList<distanciaTesoro> aux = new ArrayList<distanciaTesoro>();
-			for (int i = 0; i < TesorosDisp.size(); i++) {
-				float a = TesorosDisp.get(i).getCoor_x() - X;
-				float b = TesorosDisp.get(i).getCoor_y() - Y;
-				distanciaTesoro salida = new distanciaTesoro(Math.sqrt((a * a) + (b * b)), TesorosDisp.get(i).getId());
-				aux.add(salida);
-			}
-			Collections.sort(aux);
-
-			if (pag > aux.size()) {
-				return Response.status(Response.Status.BAD_REQUEST).build();
-			}
-			ArrayList<Tesoros> lista = new ArrayList<Tesoros>();
-			for (int i = pag - 1; i < aux.size() && lim - 1 > aux.size(); i++) {
-
-				Tesoros tesoro = TesorosDao.getInstance().getModel().get(aux.get(i).getId());
-				if (tesoro.getDificultad().equals(dif) && tesoro.getTipo_terreno().equals(terreno)
-						&& tesoro.getTam() == tam)
-					lista.add(tesoro);
-			}
-			if (lista.size() <= 0)
-				return Response.status(Response.Status.NOT_FOUND).build();
-			TesorosList salida = new TesorosList(lista);
-			return Response.ok(salida).build();
-		} catch (NumberFormatException e) {
-			return Response.status(Response.Status.BAD_REQUEST)
-					.entity("No se pudieron convertir los Ã­ndices a nÃºmeros").build();
-		}
-	}
+		
 }

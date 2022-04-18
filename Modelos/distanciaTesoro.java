@@ -1,4 +1,4 @@
-package rest1;
+package Models;
 
 public class distanciaTesoro implements Comparable<distanciaTesoro> {
 	private double distancia;
@@ -19,5 +19,4 @@ public class distanciaTesoro implements Comparable<distanciaTesoro> {
         = (int) ((distanciaTesoro)comparestu).distancia;
 		 return (int) (this.distancia- compareage);
 		 }
-
 }

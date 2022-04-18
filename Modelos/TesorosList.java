@@ -1,4 +1,4 @@
-package rest1;
+package Models;
 
 import java.util.List;
 
@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class TesorosList {
-
 	private List<Tesoros> l;
 
 	public TesorosList(){   
@@ -15,7 +14,6 @@ public class TesorosList {
 	public TesorosList (List<Tesoros> l){
 		   this.l = l;
 		 }
-
 	public List<Tesoros> getL() {
 		return l;
 	}

@@ -18,6 +18,13 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.client.ClientConfig;
 
+import Models.Usuarios;
+import Models.Tesoros;
+import Models.UsuariosList;
+import Models.TesorosList;
+import Daos.TesorosDao;
+import Daos.UsuariosDao;
+
 
 public class Ventana extends JFrame{
     
@@ -359,7 +366,7 @@ public class Ventana extends JFrame{
     	        	consultarAmigos();
     	        }
     	        if(btn1.getText() == "Tesoros Cercanos a ..."){
-    	        	System.out.println(btn1.getText());
+    	        	tesorosCercanos();
     	        }
     	        if(btn1.getText() == "Actualizar Tesoro"){
     	        	actualizarTesoro();
@@ -439,6 +446,15 @@ public class Ventana extends JFrame{
    }
 
     public void listaUsuarios() {
+    	
+    	String res = JOptionPane.showInputDialog(null,"Quiere filtrar por nombre a los usuarios? (s/n)");
+    	String nombre;
+    	
+    	if(res.charAt(0) =='s') {
+    		nombre = JOptionPane.showInputDialog(null,"Ingrese el patron de busqueda: ");
+    		JOptionPane.showMessageDialog(null,target.path("v1").path("usuarios").path("f").queryParam("nombre",nombre).request().accept(MediaType.TEXT_PLAIN).get(String.class));
+    	}
+    	else if(res.charAt(0) =='n')
     	JOptionPane.showMessageDialog(null,target.path("v1").path("usuarios").request().accept(MediaType.TEXT_PLAIN).get(String.class));
     	
     }
@@ -776,6 +792,45 @@ public class Ventana extends JFrame{
 		   JOptionPane.showMessageDialog(null,"No ha sido posible agregar el tesoro ya que no se encontro");
 		   areaTexto.append("No ha sido posible agregar el tesoro ya que no se encontro");
 	   }
+   }
+   
+   public void tesorosCercanos() {
+	   String fecha, pag, lim, dif, tam, terreno;
+	   float coor_x,coor_y;
+	   Response respuesta;
+	   Tesoros tesoroAx;
+	   TesorosList salida;
+	   Iterator<Tesoros> i;
+	   String s;
+	   
+	   coor_x = Float.parseFloat(JOptionPane.showInputDialog(null,"Ingresa la coordenada x: "));
+	   coor_y = Float.parseFloat(JOptionPane.showInputDialog(null,"Ingresa la coordenada y: "));
+	   fecha = JOptionPane.showInputDialog(null,"Ingresa la fecha limite de la busqueda en el siguiente formato yyyy-mm-dd: ");
+  		pag = JOptionPane.showInputDialog(null,"Ingresa el tesoro a partir del cual se iniciara la busqueda: ");
+  		lim = JOptionPane.showInputDialog(null,"Ingresa el tesoro a partir del cual se terminara la busqueda: ");
+  		dif = JOptionPane.showInputDialog(null,"Ingresa la dificulta del tesoro: ");
+  		tam = JOptionPane.showInputDialog(null,"Ingresa el tamanio del tesoro: ");
+  		terreno = JOptionPane.showInputDialog(null,"Ingresa el terreno del tesoro: ");
+  		
+  		respuesta =  target.path("v1").path("usuarios").path("tesoros").path("cerca_de").queryParam("coor_x", coor_x).queryParam("coor_y", coor_y).queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get();
+	 	   
+	 	   if(respuesta.getStatus() != 200) {
+	 		   JOptionPane.showMessageDialog(null,"No es posible consultar a este tesoro "+respuesta.getStatus()+" "+respuesta.getEntity());
+	 		   return;
+	 	   }
+	    	
+	 	  salida =  target.path("v1").path("usuarios").path("tesoros").path("cerca_de").queryParam("coor_x", coor_x).queryParam("coor_y", coor_y).queryParam("fecha_lim", fecha).queryParam("pag", pag).queryParam("lim", lim).queryParam("dif", dif).queryParam("tam", tam).queryParam("terreno", terreno).request().accept(MediaType.APPLICATION_XML).get(TesorosList.class);
+	   	
+	 	 i  = salida.getL().iterator();
+		    
+		    s = "";
+		    while (i.hasNext()) {
+		    	tesoroAx = i.next(); 
+		    	s = s + "Id: "+tesoroAx.getId()+", fecha: "+tesoroAx.getFecha_post()+", tamaño: "+tesoroAx.getTam()+", terreno: "+tesoroAx.getTipo_terreno() + "\n";
+		    }
+		    
+		    JOptionPane.showMessageDialog(null,s);
+  		
    }
    
 }
